@@ -1,6 +1,6 @@
 <?php
     class count {
-        public $balls;
-        public $strikes;
+        public $balls = 0;
+        public $strikes = 0;
     }
 ?>
