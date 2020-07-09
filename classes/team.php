@@ -2,7 +2,8 @@
     class Team {
         public $city = "";
         public $name = "";
-        public $pct = 0.000;    // winning percentage: W/(W+L)
+        public $W = 0;
+        public $L = 0;
         public $batters = array();
         public $pitchers = array();
         public $pitcher = 0;  // # in the pitchers list

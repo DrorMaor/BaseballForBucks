@@ -1,9 +1,8 @@
 <?php
     class pitcher {
-        public $pos = "";
         public $name = "";
-        public $ERA = 0.000;
-        public $AvgInnPerGame = 0.000;
+        public $ERA = 0.00;
+        public $AvgInnPerGame = 0;
         public $RS = "";    // Reliever or Starter
     }
 ?>

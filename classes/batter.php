@@ -1,8 +1,10 @@
 <?php
     class batter {
-        public $pos = "";
         public $name = "";
-        public $BatterHitsPct;   // refer to comments in that struct
         public $AVG = 0.000;
+        public $H = 0;
+        public $B2 = 0;
+        public $B3 = 0;
+        public $HR = 0;
     }
 ?>

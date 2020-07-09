@@ -1,7 +1,7 @@
 <?php
 
 class game {
-    private $teams = array();
+    public $teams = array();
     private $bti;  // Batting Team Index (too long to write full name each time)
     private $inning;
     private $count;
@@ -14,12 +14,21 @@ class game {
     // this will increment by 1 with each top/bottom of inning, and will be a running total, but we can determine (for printing reasons) the actual inning # and top/bottom
     private $InningFrame;
 
-    public function __construct() {
+    private $GameOver;
+
+    private $year;
+    private $AwayTeam;
+    private $HomeTeam;
+
+    public function __construct($year, $AwayTeam, $HomeTeam) {
+        $this->year = $year;
+        $this->AwayTeam = $AwayTeam;
+        $this->HomeTeam = $HomeTeam;
+
         require_once ("classes/inning.php");
         require_once ("classes/count.php");
         require_once ("classes/team.php");
         require_once ("classes/batter.php");
-        require_once ("classes/BatterHitsPct.php");
         require_once ("classes/pitcher.php");
 
         $this->bti = 0;
@@ -28,15 +37,18 @@ class game {
         $this->MaxErrors = floor($this->GetRand()*6);
         $this->ErrorCount = 0;
         $this->InningFrame = -1;
+        $this->GameOver = false;
     }
 
     function GetRand() {
         return rand (0, 999) / 1000;
     }
 
-    function main() {
+    function start() {
         $this->GetLineup();
         $this->PlayBall();
+        //print_r($this->teams);
+        //echo "<br><br><br>";
     }
 
 
@@ -44,37 +56,45 @@ class game {
     // LINEUP code //
     /////////////////
     function GetLineup() {
-        $AwayTeam = $_GET["AwayTeam"];
-        $AwayYear = $_GET["AwayYear"];
-        $HomeTeam = $_GET["HomeTeam"];
-        $HomeYear = $_GET["HomeYear"];
         require ("DBconn.php");
 
         $team = new team();
-        $team->batters = $this->GetBatters($conn, $AwayTeam, $AwayYear);
-        $team->pitchers = $this->GetPitchers($conn, $AwayTeam, $AwayYear);
+        $team->batters = $this->GetBatters($conn, $this->AwayTeam, $this->year);
+        $team->pitchers = $this->GetPitchers($conn, $this->AwayTeam, $this->year);
+        $this->GetTeamData($conn, $team, $this->year, $this->AwayTeam);
         array_push($this->teams, $team);
         $team = new team();
-        $team->batters = $this->GetBatters($conn, $HomeTeam, $HomeYear);
-        $team->pitchers = $this->GetPitchers($conn, $HomeTeam, $HomeYear);
+        $team->batters = $this->GetBatters($conn, $this->HomeTeam, $this->year);
+        $team->pitchers = $this->GetPitchers($conn, $this->HomeTeam, $this->year);
+        $this->GetTeamData($conn, $team, $this->year, $this->HomeTeam);
         array_push($this->teams, $team);
 
         $conn = null;
     }
 
+    function GetTeamData($conn, &$team, $year, $teamID) {
+        $sql = $conn->prepare("select * from ActualTeams t inner join ActualSeasons s on s.team = t.id where t.id = $teamID and s.year = $year; ");
+        $sql->execute();
+        foreach($sql as $row => $cols) {
+            $team->city = $cols["city"];
+            $team->name = $cols["name"];
+            $team->W = $cols["W"];
+            $team->L = $cols["L"];
+        }
+        $conn = null;
+    }
     function GetBatters($conn, $team, $year) {
         $Team = new Team();
-        $sql = $conn->prepare("SELECT * from ActualBatters where team = $team and year = $year");
+        $sql = $conn->prepare("select * from ActualBatters where team = $team and year = $year;");
         $sql->execute();
         foreach($sql as $row => $cols) {
             $b = new batter();
             $b->name = $cols["name"];
             $b->AVG = $cols["AVG"];
-            $bhp = new BatterHitsPct();
-            $bhp->DBL = $cols["B2"];
-            $bhp->TPL = $cols["B3"];
-            $bhp->HR = $cols["HR"];
-            $b->BatterHitsPct = $bhp;
+            $b->H = $cols["H"];
+            $b->B2 = $cols["B2"];
+            $b->B3 = $cols["B3"];
+            $b->HR = $cols["HR"];
             array_push($Team->batters, $b);
     	}
         return $Team->batters;
@@ -82,7 +102,7 @@ class game {
 
     function GetPitchers($conn, $team, $year) {
         $Team = new Team();
-        $sql = $conn->prepare("SELECT * from ActualPitchers where team = $team and year = $year");
+        $sql = $conn->prepare("select * from ActualPitchers where team = $team and year = $year;");
         $sql->execute();
         foreach($sql as $row => $cols) {
             $p = new pitcher();
@@ -106,8 +126,7 @@ class game {
     }
 
     function GameOver() {
-        echo "final score: " . $this->teams[0]->score . "-" . $this->teams[1]->score;
-        exit();
+        $this->GameOver = true;
     }
 
     function StartInning() {
@@ -117,13 +136,9 @@ class game {
         $this->inning->outs = 0;
         $this->InningFrame++;
         $this->bti = $this->InningFrame % 2;
-        while (true) {
+        while ($this->inning->outs < 3)
             $this->DoAtBat();
-            if ($this->inning->outs == 3) {
-                $this->EndInning();
-                break;
-            }
-        }
+        $this->EndInning();
     }
 
     function CheckPitchingChange() {
@@ -138,10 +153,41 @@ class game {
     function DoAtBat() {
         $this->count->balls = 0;
         $this->count->strikes = 0;
-        while (true) {
-            if ($this->count->balls < 4 && $this->count->strikes < 3)
-                $this->DoPitch();
-            elseif ($this->inning->outs == 3)
+        while (!$this->GameOver) {
+            // determine if it's a hit or out
+
+            $team = $this->teams[$this->bti];
+            $CurrBtr = $team->batters[$team->AtBatNum];
+
+            // ERA3 is ERA adjusted to 3.0
+            // (3.00 is a decent ERA, and anothing higher would make the batter stronger,
+            //  and anything lower would make the batter weaker)
+            $ERA3 = $team->pitchers[$team->pitcher]->ERA - 3.33;
+            // GBOP = Getting Batter Out Percentage, we adjust the ERA3 based on the AVG
+            // so we have a fair chance at a hit/out, based on both pitcher & batter
+            $GBOP = $CurrBtr->AVG + ($ERA3 / 50);
+            if ($this->GetRand() < $GBOP) {
+                // he's on base
+
+                // calculate type of hit %age
+                $B2 = $CurrBtr->B2 / $CurrBtr->H;
+                $B3 = $CurrBtr->B3 / $CurrBtr->H;
+                $HR = $CurrBtr->HR / $CurrBtr->H;
+
+                // determine which hit type (DoHit param is # of bases in hit)
+                $r = $this->GetRand();
+                if ($r < $HR)
+                    $this->DoHit(4);
+                elseif ($r >= $HR && $r < ($HR + $B3) )
+                    $this->DoHit(3);
+                elseif ($r >= ($HR + $B3) && $r < ($HR + $B3 + $B2) )
+                    $this->DoHit(2);
+                else
+                    $this->DoHit(1);
+            } elseif (!$this->TryError())
+                $this->DoOut(false);  // he's out
+
+            if ($this->inning->outs == 3)
                 $this->EndInning();
         }
     }
@@ -162,60 +208,6 @@ class game {
         else
             // 1-8 innings, or any other extra inning
             $this->StartInning();
-    }
-
-    function DoPitch() {
-        // assuming that an average count of an at-bat is 2-1 and then he hits it, so that's a .25 chance of him hitting it
-        if ($this->GetRand() < 0.75) {
-            // ball or strike (2/3 chance of a ball)
-            if ($this->GetRand() < 0.667) {
-                // ball
-                $this->count->balls++;
-                if ($this->count->balls == 4) {
-                    // walk
-                    $this->AdvanceRunners(0, -1);
-                    $this->AdvanceLineup();
-                    $this->DoAtBat();
-                }
-            } else {
-                // strike
-                $s = $this->GetRand();
-                if (!($this->count->strikes == 2 && $s >= 0.667)) {
-                    // only add strike if it's not Strike 2 now and it's not a foul ball
-                    $this->count->strikes++;
-                    if ($this->count->strikes == 3)
-                        $this->DoOut(true);
-                }
-            }
-        } else {
-            // hit in play
-
-            // determine if it's a hit or out
-
-            $team = $this->teams[$this->bti];
-            $CurrBtr = $team->batters[$team->AtBatNum];
-            // ERA3 is ERA adjusted to 3.0
-            // (3.00 is a decent ERA, and anothing higher would make the batter stronger,
-            //  and anything lower would make the batter weaker)
-            $ERA3 = $team->pitchers[$team->pitcher]->ERA - 3.33;
-            // GBOP = Getting Batter Out Percentage, we adjust the ERA3 based on the AVG
-            // so we have a fair chance at a hit/out, based on both pitcher & batter
-            $GBOP = $CurrBtr->AVG + ($ERA3 / 50);
-            if ($this->GetRand() < $GBOP) {
-                // he's on base
-                // determine which hit type (param is # of bases in hit)
-                $r = $this->GetRand();
-                if ($r < $CurrBtr->BatterHitsPct->HR)
-                    $this->DoHit(4);
-                elseif ($r >= $CurrBtr->BatterHitsPct->HR && $r < ($CurrBtr->BatterHitsPct->HR + $CurrBtr->BatterHitsPct->TPL) )
-                    $this->DoHit(3);
-                elseif ($r >= ($CurrBtr->BatterHitsPct->HR + $CurrBtr->BatterHitsPct->TPL) && $r < ($CurrBtr->BatterHitsPct->HR + $CurrBtr->BatterHitsPct->TPL + $CurrBtr->BatterHitsPct->DBL) )
-                    $this->DoHit(2);
-                else
-                    $this->DoHit(1);
-            } elseif (!$this->TryError())
-                $this->DoOut(false);  // he's out
-        }
     }
 
     function TryError() {
@@ -306,29 +298,39 @@ class game {
                 switch ($this->BasesStatus()) {
                     case "!!!":
                         $this->SetRunnersStatus(array ("*", "!", "!"));
+                        break;
                     case "*!!":
                         $this->SetRunnersStatus(array ("*", "*", "!"));
+                        break;
                     case "!*!":
                         $this->SetRunnersStatus(array ("*", "!", "*"));
+                        break;
                     case "!!*":
                         $this->SetRunnersStatus(array ("*", "!", "!"));
                         $this->IncrementScore(1, false);
+                        break;
                     case "**!":
                         $this->SetRunnersStatus(array ("*", "*", "*"));
+                        break;
                     case "*!*":
                         $this->SetRunnersStatus(array ("*", "*", "!"));
+                        break;
                         $this->IncrementScore(1, false);
                     case "!**":
                         $this->SetRunnersStatus(array ("*", "!", "*"));
                         $this->IncrementScore(1, false);
+                        break;
                     case "***":
                         $this->IncrementScore(1, false);
+                        break;
                 }
+                break;
             case -1: // out (sac fly)
                 if ($pos >= 7 && $this->inning->runners[2] && $this->inning->outs < 2) {
                     $this->inning->runners[2] = false;  // the other 2 baserunners stay the same
                     $this->IncrementScore(1, false);
                 }
+                break;
             case 0: // walk
                 switch ($this->BasesStatus()) {
                     case "!!!":
@@ -350,6 +352,7 @@ class game {
                         $this->IncrementScore(1, false);
                         break;
                 }
+                break;
             // from now on these are # of bases in the hit
             case 1:
                 switch ($this->BasesStatus()) {
@@ -404,6 +407,7 @@ class game {
                         }
                         break;
                 }
+                break;
             case 2:
                 switch ($this->BasesStatus()) {
                     case "!!!":
@@ -412,6 +416,7 @@ class game {
                     case "!*!":
                     case "!!*":
                         $this->IncrementScore(1, false);
+                        break;
                     case "**!":
                     case "*!*":
                     case "!**":
@@ -422,6 +427,7 @@ class game {
                         break;
                 }
                 $this->SetRunnersStatus(array ("!", "*", "!")); // will always clear the bases (besides for batter himself)
+                break;
             case 3:
                 switch ($this->BasesStatus()) {
                     case "!!!":
@@ -441,6 +447,7 @@ class game {
                         break;
                 }
                 $this->SetRunnersStatus(array("!", "!", "*")); // will always clear the bases
+                break;
             case 4:
                 switch ($this->BasesStatus()) {
                     case "!!!":
@@ -461,6 +468,7 @@ class game {
                         break;
                 }
                 $this->SetRunnersStatus(array("!", "!", "!")); // will always clear the bases
+                break;
         }
     }
 
