@@ -12,7 +12,7 @@ class game {
     private $ErrorCount;
 
     // this will increment by 1 with each top/bottom of inning, and will be a running total, but we can determine (for printing reasons) the actual inning # and top/bottom
-    private $InningFrame;
+    public $InningFrame;
 
     private $GameOver;
 
@@ -37,7 +37,7 @@ class game {
         $this->MaxErrors = floor($this->GetRand()*6);
         $this->ErrorCount = 0;
         $this->InningFrame = -1;
-        $this->GameOver = false;
+        $this->GameOver = -1;
     }
 
     function GetRand() {
@@ -47,8 +47,6 @@ class game {
     function start() {
         $this->GetLineup();
         $this->PlayBall();
-        //print_r($this->teams);
-        //echo "<br><br><br>";
     }
 
 
@@ -83,6 +81,7 @@ class game {
         }
         $conn = null;
     }
+
     function GetBatters($conn, $team, $year) {
         $Team = new Team();
         $sql = $conn->prepare("select * from ActualBatters where team = $team and year = $year;");
@@ -125,13 +124,10 @@ class game {
         $this->StartInning();
     }
 
-    function GameOver() {
-        $this->GameOver = true;
-    }
-
     function StartInning() {
+
         // reset the inning numbers
-        $this->SetRunnersStatus(array("!", "!", "!"));
+        $this->inning->runners = "000";
         $this->CheckPitchingChange();
         $this->inning->outs = 0;
         $this->InningFrame++;
@@ -142,6 +138,7 @@ class game {
     }
 
     function CheckPitchingChange() {
+
         $team = $this->teams[$this->bti];
         if ($team->pitchers[$team->pitcher]->AvgInnPerGame == $team->CurPitcherInns)
             if (count($team->pitchers) > $team->pitcher + 1) {
@@ -151,45 +148,45 @@ class game {
     }
 
     function DoAtBat() {
+
         $this->count->balls = 0;
         $this->count->strikes = 0;
-        while (!$this->GameOver) {
-            // determine if it's a hit or out
 
-            $team = $this->teams[$this->bti];
-            $CurrBtr = $team->batters[$team->AtBatNum];
+        // determine if it's a hit or out
 
-            // ERA3 is ERA adjusted to 3.0
-            // (3.00 is a decent ERA, and anothing higher would make the batter stronger,
-            //  and anything lower would make the batter weaker)
-            $ERA3 = $team->pitchers[$team->pitcher]->ERA - 3.33;
-            // GBOP = Getting Batter Out Percentage, we adjust the ERA3 based on the AVG
-            // so we have a fair chance at a hit/out, based on both pitcher & batter
-            $GBOP = $CurrBtr->AVG + ($ERA3 / 50);
-            if ($this->GetRand() < $GBOP) {
-                // he's on base
+        $team = $this->teams[$this->bti];
+        $CurrBtr = $team->batters[$team->AtBatNum];
 
-                // calculate type of hit %age
-                $B2 = $CurrBtr->B2 / $CurrBtr->H;
-                $B3 = $CurrBtr->B3 / $CurrBtr->H;
-                $HR = $CurrBtr->HR / $CurrBtr->H;
+        // ERA3 is ERA adjusted to 3.0
+        // (3.00 is a decent ERA, and anothing higher would make the batter stronger,
+        //  and anything lower would make the batter weaker)
+        $ERA3 = $team->pitchers[$team->pitcher]->ERA - 3.33;
+        // GBOP = Getting Batter Out Percentage, we adjust the ERA3 based on the AVG
+        // so we have a fair chance at a hit/out, based on both pitcher & batter
+        $GBOP = $CurrBtr->AVG + ($ERA3 / 50);
+        if ($this->GetRand() < $GBOP) {
+            // he's on base
 
-                // determine which hit type (DoHit param is # of bases in hit)
-                $r = $this->GetRand();
-                if ($r < $HR)
-                    $this->DoHit(4);
-                elseif ($r >= $HR && $r < ($HR + $B3) )
-                    $this->DoHit(3);
-                elseif ($r >= ($HR + $B3) && $r < ($HR + $B3 + $B2) )
-                    $this->DoHit(2);
-                else
-                    $this->DoHit(1);
-            } elseif (!$this->TryError())
-                $this->DoOut(false);  // he's out
+            // calculate type of hit %age
+            $B2 = $CurrBtr->B2 / $CurrBtr->H;
+            $B3 = $CurrBtr->B3 / $CurrBtr->H;
+            $HR = $CurrBtr->HR / $CurrBtr->H;
 
-            if ($this->inning->outs == 3)
-                $this->EndInning();
-        }
+            // determine which hit type (DoHit param is # of bases in hit)
+            $r = $this->GetRand();
+            if ($r < $HR)
+                $this->DoHit(4);
+            elseif ($r >= $HR && $r < ($HR + $B3) )
+                $this->DoHit(3);
+            elseif ($r >= ($HR + $B3) && $r < ($HR + $B3 + $B2) )
+                $this->DoHit(2);
+            else
+                $this->DoHit(1);
+        } elseif (!$this->TryError())
+            $this->DoOut(false);  // he's out
+
+        if ($this->inning->outs == 3)
+            $this->EndInning();
     }
 
     function EndInning() {
@@ -201,10 +198,10 @@ class game {
         // determine whether to end the game, or start another inning
         if ($this->InningFrame == 16 && $this->teams[1]->score > $this->teams[0]->score)
             // bottom of the 9th, home team ahead
-            $this->GameOver();
+            $this->GameOver = 1;
         elseif ($this->InningFrame >= 17 && $this->bti == 1 && $this->teams[1]->score != $this->teams[0]->score)
             // extra innings, bottom of frame, any team ahead
-            $this->GameOver();
+            $this->GameOver = 1;
         else
             // 1-8 innings, or any other extra inning
             $this->StartInning();
@@ -240,34 +237,29 @@ class game {
             $this->teams[$this->bti]->AtBatNum = 0;
     }
 
-    function SetRunnersStatus ($runners) {
-        for ($i = 0; $i <= 2; $i++)
-            $this->inning->runners[$i] = $runners[$i];
-    }
-
     function TryDoublePlay ($pos) {
         $dbTurned = true; // this will be the result (will be the default value here, unless it's set to false)
 
-        switch ($this->BasesStatus()) {
-            case "!!!":
+        switch ($this->inning->runners) {
+            case "000":
                 $dbTurned = false;
                 break;
-            case "*!!":
-                $this->inning->runners[0] = false;
+            case "100":
+                $this->inning->runners = "000";
                 break;
-            case "!*!":
-            case "!!*":
+            case "010":
+            case "001":
                 $dbTurned = false;
                 break;
-            case "**!":
-            case "*!*":
-                $this->SetRunnersStatus(array("!", "!", "*"));
+            case "001":
+            case "101":
+                $this->inning->runners = "001";
                 break;
-            case "!**":
+            case "011":
                 $dbTurned = false;
                 break;
-            case "***":
-                $this->SetRunnersStatus(array ("*", "*", "!"));
+            case "111":
+                $this->inning->runners = "110";
                 break;
         }
         return $dbTurned;
@@ -286,7 +278,7 @@ class game {
         $this->teams[$this->bti]->score += $runs;
 
         if ($walkoff)
-            $this->GameOver();
+            $this->GameOver = 1;
     }
 
     function AdvanceRunners($bases, $pos) {
@@ -295,188 +287,182 @@ class game {
 
         switch ($bases) {
             case -2: // error (assumed one base advance per runner, plus batter safe at first)
-                switch ($this->BasesStatus()) {
-                    case "!!!":
-                        $this->SetRunnersStatus(array ("*", "!", "!"));
+                switch ($this->inning->runners) {
+                    case "000":
+                        $this->inning->runners = "100";
                         break;
-                    case "*!!":
-                        $this->SetRunnersStatus(array ("*", "*", "!"));
+                    case "100":
+                        $this->inning->runners = "110";
                         break;
-                    case "!*!":
-                        $this->SetRunnersStatus(array ("*", "!", "*"));
+                    case "010":
+                        $this->inning->runners = "101";
                         break;
-                    case "!!*":
-                        $this->SetRunnersStatus(array ("*", "!", "!"));
+                    case "001":
+                        $this->inning->runners = "100";
                         $this->IncrementScore(1, false);
                         break;
-                    case "**!":
-                        $this->SetRunnersStatus(array ("*", "*", "*"));
+                    case "001":
+                        $this->inning->runners = "111";
                         break;
-                    case "*!*":
-                        $this->SetRunnersStatus(array ("*", "*", "!"));
+                    case "101":
+                        $this->inning->runners = "110";
                         break;
                         $this->IncrementScore(1, false);
-                    case "!**":
-                        $this->SetRunnersStatus(array ("*", "!", "*"));
+                    case "011":
+                        $this->inning->runners = "101";
                         $this->IncrementScore(1, false);
                         break;
-                    case "***":
+                    case "111":
                         $this->IncrementScore(1, false);
                         break;
                 }
                 break;
             case -1: // out (sac fly)
-                if ($pos >= 7 && $this->inning->runners[2] && $this->inning->outs < 2) {
-                    $this->inning->runners[2] = false;  // the other 2 baserunners stay the same
+                if ($pos >= 7 && substr($this->inning->runners, 2, 1) == "1" && $this->inning->outs < 2) {
+                    // the other 2 baserunners stay the same
+                    $this->inning->runners = substr_replace($this->inning->runners, "0", 2, 1);
                     $this->IncrementScore(1, false);
                 }
                 break;
             case 0: // walk
-                switch ($this->BasesStatus()) {
-                    case "!!!":
-                        $this->SetRunnersStatus(array ("*", "!", "!"));
+                switch ($this->inning->runners) {
+                    case "000":
+                        $this->inning->runners = "100";
                         break;
-                    case "*!!":
-                    case "!*!":
-                        $this->SetRunnersStatus(array ("*", "*", "!"));
+                    case "100":
+                    case "010":
+                        $this->inning->runners = "110";
                         break;
-                    case "!!*":
-                        $this->SetRunnersStatus(array ("*", "!", "*"));
+                    case "001":
+                        $this->inning->runners = "101";
                         break;
-                    case "**!":
-                    case "*!*":
-                    case "!**":
-                        $this->SetRunnersStatus(array ("*", "*", "*"));
+                    case "001":
+                    case "101":
+                    case "011":
+                        $this->inning->runners = "111";
                         break;
-                    case "***":
+                    case "111":
                         $this->IncrementScore(1, false);
                         break;
                 }
                 break;
             // from now on these are # of bases in the hit
             case 1:
-                switch ($this->BasesStatus()) {
-                    case "!!!":
-                        $this->SetRunnersStatus(array ("*", "!", "!"));
+                switch ($this->inning->runners) {
+                    case "000":
+                        $this->inning->runners = "100";
                         break;
-                    case "*!!":
+                    case "100":
                         if ($pos == 9)
                             // runner will advance from 1st to 3rd on a single to right
-                            $this->SetRunnersStatus(array ("*", "!", "*"));
+                            $this->inning->runners = "101";
                         else
-                            $this->SetRunnersStatus(array ("*", "*", "!"));
+                            $this->inning->runners = "110";
                         break;
-                    case "!*!":
+                    case "010":
                         // runner will score from second
-                    case "!!*":
-                        $this->SetRunnersStatus(array ("*", "!", "!"));
+                    case "001":
+                        $this->inning->runners = "100";
                         $this->IncrementScore(1, false);
                         break;
-                    case "**!":
+                    case "001":
                         if ($pos >= 8)
-                            $this->SetRunnersStatus(array ("*", "!", "*"));
+                            $this->inning->runners = "101";
                         else
-                            $this->SetRunnersStatus(array ("*", "*", "!"));
+                            $this->inning->runners = "110";
 
                         $this->IncrementScore(1, false);
                         break;
-                    case "*!*":
+                    case "101":
                         if ($pos >= 8)
-                            $this->SetRunnersStatus(array ("*", "!", "*"));
+                            $this->inning->runners = "101";
                         else
-                            $this->SetRunnersStatus(array ("*", "*", "!"));
+                            $this->inning->runners = "110";
 
                         $this->IncrementScore(1, false);
                         break;
-                    case "!**":
+                    case "011":
                         if ($pos >= 8) {
-                            $this->SetRunnersStatus(array ("*", "!", "!"));
+                            $this->inning->runners = "100";
                             $this->IncrementScore(2, false);
                         } else {
-                            $this->SetRunnersStatus(array ("*", "!", "*"));
+                            $this->inning->runners = "101";
                             $this->IncrementScore(1, false);
                         }
                         break;
-                    case "***":
+                    case "111":
                         if ($pos >= 8) {
-                            $this->SetRunnersStatus(array ("*", "!", "*"));
+                            $this->inning->runners = "101";
                             $this->IncrementScore(2, false);
                         } else {
-                            $this->SetRunnersStatus(array ("*", "*", "*"));
+                            $this->inning->runners = "111";
                             $this->IncrementScore(1, false);
                         }
                         break;
                 }
                 break;
             case 2:
-                switch ($this->BasesStatus()) {
-                    case "!!!":
+                switch ($this->inning->runners) {
+                    case "000":
                         break;
-                    case "*!!":
-                    case "!*!":
-                    case "!!*":
+                    case "100":
+                    case "010":
+                    case "001":
                         $this->IncrementScore(1, false);
                         break;
-                    case "**!":
-                    case "*!*":
-                    case "!**":
+                    case "001":
+                    case "101":
+                    case "011":
                         $this->IncrementScore(2, false);
                         break;
-                    case "***":
+                    case "111":
                         $this->IncrementScore(3, false);
                         break;
                 }
-                $this->SetRunnersStatus(array ("!", "*", "!")); // will always clear the bases (besides for batter himself)
+                $this->inning->runners = "010"; // will always clear the bases (besides for batter himself)
                 break;
             case 3:
-                switch ($this->BasesStatus()) {
-                    case "!!!":
+                switch ($this->inning->runners) {
+                    case "000":
                         break;
-                    case "*!!":
-                    case "!*!":
-                    case "!!*":
+                    case "100":
+                    case "010":
+                    case "001":
                         $this->IncrementScore(1, false);
                         break;
-                    case "**!":
-                    case "*!*":
-                    case "!**":
+                    case "001":
+                    case "101":
+                    case "011":
                         $this->IncrementScore(2, false);
                         break;
-                    case "***":
+                    case "111":
                         $this->IncrementScore(3, false);
                         break;
                 }
-                $this->SetRunnersStatus(array("!", "!", "*")); // will always clear the bases
+                $this->inning->runners = "001"; // will always clear the bases
                 break;
             case 4:
-                switch ($this->BasesStatus()) {
-                    case "!!!":
+                switch ($this->inning->runners) {
+                    case "000":
                         $this->IncrementScore(1, true);
                         break;
-                    case "*!!":
-                    case "!*!":
-                    case "!!*":
+                    case "100":
+                    case "010":
+                    case "001":
                         $this->IncrementScore(2, true);
                         break;
-                    case "**!":
-                    case "*!*":
-                    case "!**":
+                    case "001":
+                    case "101":
+                    case "011":
                         $this->IncrementScore(3, true);
                         break;
-                    case "***":
+                    case "111":
                         $this->IncrementScore(4, true);
                         break;
                 }
-                $this->SetRunnersStatus(array("!", "!", "!")); // will always clear the bases
+                $this->inning->runners = "000"; // will always clear the bases
                 break;
         }
-    }
-
-    function BasesStatus() {
-        $status = "";
-        foreach ($this->inning->runners as $runner)
-            $status += $runner;
-        return $status;
     }
 
     function DoOut($strikeout) {

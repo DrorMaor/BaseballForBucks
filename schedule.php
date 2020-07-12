@@ -13,7 +13,7 @@
         function GetScheduleAndPlayGames() {
             require_once("game.php");
             require_once("DBconn.php");
-            $sql = $conn->prepare("select * from ActualSchedule where (AwayTeam = $this->team or HomeTeam = $this->team) and year = $this->year limit 2;") ;
+            $sql = $conn->prepare("select * from ActualSchedule where (AwayTeam = $this->team or HomeTeam = $this->team) and year = $this->year;") ;
             $sql->execute();
             foreach($sql as $row => $cols) {
                 for ($i = 0; $i < $cols["games"]; $i++) {
