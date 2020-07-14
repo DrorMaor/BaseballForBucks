@@ -19,11 +19,13 @@ class game {
     private $year;
     private $AwayTeam;
     private $HomeTeam;
+    private $gameNum;
 
-    public function __construct($year, $AwayTeam, $HomeTeam) {
+    public function __construct($year, $AwayTeam, $HomeTeam, $gameNum) {
         $this->year = $year;
         $this->AwayTeam = $AwayTeam;
         $this->HomeTeam = $HomeTeam;
+        $this->gameNum = $gameNum;
 
         require_once ("classes/inning.php");
         require_once ("classes/count.php");
@@ -100,17 +102,43 @@ class game {
     }
 
     function GetPitchers($conn, $team, $year) {
+        $id = 0;
         $Team = new Team();
         $sql = $conn->prepare("select * from ActualPitchers where team = $team and year = $year;");
         $sql->execute();
         foreach($sql as $row => $cols) {
             $p = new pitcher();
+            $p->id = $id;  // used to determine who's this game's starter
             $p->name = $cols["name"];
             $p->ERA = $cols["ERA"];
             $p->AvgInnPerGame = $cols["AvgInnPerGame"];
-            $p->RS = $cols['type'];
+            $p->type = $cols['type'];  // (R/S) for Reliever or Starter
             array_push($Team->pitchers, $p);
+            $id++;
     	}
+
+        // -----------------------------------------///
+        // select the starter, based on the rotation //
+        // -----------------------------------------///
+
+        // put all starters in temp array
+        $starters = array();
+        foreach ($Team->pitchers as $pitcher) {
+            if ($pitcher->type == "S")
+                array_push($starters, $pitcher->id);
+        }
+
+        // determine today's starter
+        $starterID = $starters[$gameNum % count($starters)];
+
+        // here we remove all other starters besides this game's starter
+        $counter = 0;
+        foreach ($Team->pitchers as $pitcher) {
+            if ($pitcher->type == "S" && $pitcher->id != $starterID)
+                unset($Team->pitchers[$counter]);
+            $counter++;
+        }
+
         return $Team->pitchers;
     }
     /////////////////////
@@ -125,7 +153,6 @@ class game {
     }
 
     function StartInning() {
-
         // reset the inning numbers
         $this->inning->runners = "000";
         $this->CheckPitchingChange();
@@ -138,17 +165,16 @@ class game {
     }
 
     function CheckPitchingChange() {
-
         $team = $this->teams[$this->bti];
-        if ($team->pitchers[$team->pitcher]->AvgInnPerGame == $team->CurPitcherInns)
+        if ($team->pitchers[$team->pitcher]->AvgInnPerGame == $team->CurPitcherInns) {
             if (count($team->pitchers) > $team->pitcher + 1) {
                 $this->teams[$this->bti]->pitcher++;
                 $this->teams[$this->bti]->CurPitcherInns = 0;
             }
+        }
     }
 
     function DoAtBat() {
-
         $this->count->balls = 0;
         $this->count->strikes = 0;
 

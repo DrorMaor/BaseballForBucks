@@ -4,6 +4,7 @@
         public $year;
         public $W = 0;
         public $L = 0;
+        private $gameNum = 0;
 
         public function __construct($team, $year) {
             $this->team = $team;
@@ -12,12 +13,12 @@
 
         function GetScheduleAndPlayGames() {
             require_once("game.php");
-            require_once("DBconn.php");
+            require("DBconn.php");
             $sql = $conn->prepare("select * from ActualSchedules where (AwayTeam = $this->team or HomeTeam = $this->team) and year = $this->year;") ;
             $sql->execute();
-            foreach($sql as $row => $cols) {
+            foreach ($sql as $row => $cols) {
                 for ($i = 0; $i < $cols["games"]; $i++) {
-                    $game = new game($this->year, $cols["AwayTeam"], $cols["HomeTeam"]);
+                    $game = new game($this->year, $cols["AwayTeam"], $cols["HomeTeam"], $this->gameNum);
                     $game->start();
                     if ($this->team == $cols["AwayTeam"]) {
                         if ($game->teams[0]->score > $game->teams[1]->score)
@@ -31,6 +32,7 @@
                         else
                             $this->L++;
                     }
+                    $this->gameNum++;
                 }
             }
             $conn = null;

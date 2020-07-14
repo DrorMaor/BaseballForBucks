@@ -1,0 +1,15 @@
+#imgSpinBall {
+    display: none;
+    animation: spin 2s linear infinite;
+    height:50px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#divTeams {
+    height: 350px;
+    width: 300px;
+    overflow-y: scroll;
+}
