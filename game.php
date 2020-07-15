@@ -16,13 +16,17 @@ class game {
 
     private $GameOver;
 
+    private $team;  // to know if it's the home or away team
     private $year;
+    private $season;  // so we know which lineup the member chose
     private $AwayTeam;
     private $HomeTeam;
     private $gameNum;
 
-    public function __construct($year, $AwayTeam, $HomeTeam, $gameNum) {
+    public function __construct($team, $year, $season, $AwayTeam, $HomeTeam, $gameNum) {
+        $this->team = $year;
         $this->year = $year;
+        $this->season = $season;
         $this->AwayTeam = $AwayTeam;
         $this->HomeTeam = $HomeTeam;
         $this->gameNum = $gameNum;
@@ -58,13 +62,25 @@ class game {
     function GetLineup() {
         require ("DBconn.php");
 
+        // for the batters, if the home or away team is the one that the member is playing,
+        // so we get his lineup instead of the actual one
+
+        // away team
         $team = new team();
-        $team->batters = $this->GetBatters($conn, $this->AwayTeam, $this->year);
+        if ($this->team == $this->AwayTeam)
+            $team->batters = $this->GetBatters($conn, -1, -1, $this->season);
+        else
+            $team->batters = $this->GetBatters($conn, $this->team, $this->year, -1);
         $team->pitchers = $this->GetPitchers($conn, $this->AwayTeam, $this->year);
         $this->GetTeamData($conn, $team, $this->year, $this->AwayTeam);
         array_push($this->teams, $team);
+
+        // home team
         $team = new team();
-        $team->batters = $this->GetBatters($conn, $this->HomeTeam, $this->year);
+        if ($this->team == $this->HomeTeam)
+            $team->batters = $this->GetBatters($conn, -1, -1, $this->season);
+        else
+            $team->batters = $this->GetBatters($conn, $this->team, $this->year, -1);
         $team->pitchers = $this->GetPitchers($conn, $this->HomeTeam, $this->year);
         $this->GetTeamData($conn, $team, $this->year, $this->HomeTeam);
         array_push($this->teams, $team);
@@ -84,9 +100,12 @@ class game {
         $conn = null;
     }
 
-    function GetBatters($conn, $team, $year) {
+    function GetBatters($conn, $team, $year, $season) {
         $Team = new Team();
-        $sql = $conn->prepare("select * from ActualBatters where team = $team and year = $year;");
+        if ($season != -1)
+            $sql = $conn->prepare("select * from ActualBatters where id in (select batter from SeasonsLineup where season = $season) ;");
+        else
+            $sql = $conn->prepare("select * from ActualBatters where team = $team and year = $year;");
         $sql->execute();
         foreach($sql as $row => $cols) {
             $b = new batter();
@@ -129,7 +148,7 @@ class game {
         }
 
         // determine today's starter
-        $starterID = $starters[$gameNum % count($starters)];
+        $starterID = $starters[$this->gameNum % count($starters)];
 
         // here we remove all other starters besides this game's starter
         $counter = 0;

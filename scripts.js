@@ -5,6 +5,7 @@ function SelectTeamYear(teamID) {
     TeamYearSplit(teamID);
     $(".tr").css("background-color","white");
     $("#tr_" + team).css("background-color","yellow");
+    CreateLineup();
 }
 
 function TeamYearSplit(teamID) {
@@ -13,25 +14,10 @@ function TeamYearSplit(teamID) {
     year = TeamYear[1];
 }
 
-/////////////////////////
-// drag/drop functions //
-/////////////////////////
-
-$(document).ready(function() {
-    team = 38;
-    year = 1982;
-    CreateLineup();
-    $( ".draggable" ).draggable();
-
-
-    $( ".droppable" ).droppable({
-      drop: function( event, ui ) {
-        $( this )
-          .css( "background-color", "yellow" );
-      }
-});
+$( function() {
+    $( "#sortable" ).sortable();
+    $( "#sortable" ).disableSelection();
 } );
-
 
 function CreateLineup() {
     $.ajax({
@@ -47,14 +33,9 @@ function CreateLineup() {
 
 function DisplayLineupResults(response) {
     var json = JSON.parse(response);
-    lineup = "<table >";
-    lineup += "<tr><td>Actual Lineup</td> <td>Your Lineup</td> </tr>";
-    for (i = 0; i < json.length; i++) {
-        lineup += "<tr> <td class='ActualLineup lineup draggable' draggable='true' id='al_" + json[i].id + "'>" + json[i].name + "</td> ";
-        lineup += "<td class='LineupPosition lineup droppable' id='pos_" + i + "'>&nbsp;</td> </tr>";
-    }
-    lineup += "</table>";
-    $("#divLineup").html(lineup);
+    $("#divLineup ul").empty();
+    for (i = 0; i < json.length; i++)
+        $("#divLineup ul").append("<li class='lineup' id='" + json[i].id + "'>" + json[i].name + "</li> ");
 }
 
 function RunSchedule() {
@@ -62,7 +43,7 @@ function RunSchedule() {
     $("#imgSpinBall").show();
     $.ajax({
         type: "GET",
-        url: "RunSchedule.php?team=" + team + "&year=" + year,
+        url: "RunSchedule.php?team=" + team + "&year=" + year + "&lineup=" + UserLineup(),
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
@@ -70,6 +51,14 @@ function RunSchedule() {
             DisplayScheduleResults(response);
         }
     });
+}
+
+function UserLineup() {
+    var lineup = "";
+    $("#sortable li").each(function(idx, li) {
+        lineup += $(li).attr('id') + "|";
+    });
+    return lineup;
 }
 
 function DisplayScheduleResults(response) {
