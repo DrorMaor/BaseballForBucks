@@ -13,6 +13,26 @@ function TeamYearSplit(teamID) {
     year = TeamYear[1];
 }
 
+/////////////////////////
+// drag/drop functions //
+/////////////////////////
+
+$(document).ready(function() {
+    team = 38;
+    year = 1982;
+    CreateLineup();
+    $( ".draggable" ).draggable();
+
+
+    $( ".droppable" ).droppable({
+      drop: function( event, ui ) {
+        $( this )
+          .css( "background-color", "yellow" );
+      }
+});
+} );
+
+
 function CreateLineup() {
     $.ajax({
         type: "GET",
@@ -27,11 +47,14 @@ function CreateLineup() {
 
 function DisplayLineupResults(response) {
     var json = JSON.parse(response);
-    x = "";
+    lineup = "<table >";
+    lineup += "<tr><td>Actual Lineup</td> <td>Your Lineup</td> </tr>";
     for (i = 0; i < json.length; i++) {
-      x += json[i].name + ", ";
+        lineup += "<tr> <td class='ActualLineup lineup draggable' draggable='true' id='al_" + json[i].id + "'>" + json[i].name + "</td> ";
+        lineup += "<td class='LineupPosition lineup droppable' id='pos_" + i + "'>&nbsp;</td> </tr>";
     }
-    $("#divResults").text(x);
+    lineup += "</table>";
+    $("#divLineup").html(lineup);
 }
 
 function RunSchedule() {

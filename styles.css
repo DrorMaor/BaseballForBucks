@@ -9,7 +9,36 @@
 }
 
 #divTeams {
+    position: relative;
+    left: 5px;
+    top: 5px;
     height: 350px;
     width: 300px;
     overflow-y: scroll;
+}
+
+#divLineup {
+    position: absolute;
+    left: 350px;
+    top: 5px;
+    width: 400px;
+}
+
+#divCreateLineup {
+    position: absolute;
+}
+
+.lineup {
+    margin: 2px;
+    padding: 2px;
+    width: 150px;
+    height: 30px;
+}
+
+.ActualLineup {
+    background-color: #e8f0fc;
+}
+
+.LineupPosition {
+    background-color: #c7ddff;
 }
