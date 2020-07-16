@@ -24,7 +24,7 @@ class game {
     private $gameNum;
 
     public function __construct($team, $year, $season, $AwayTeam, $HomeTeam, $gameNum) {
-        $this->team = $year;
+        $this->team = $team;
         $this->year = $year;
         $this->season = $season;
         $this->AwayTeam = $AwayTeam;

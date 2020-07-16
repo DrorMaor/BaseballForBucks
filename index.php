@@ -1,5 +1,5 @@
 <?php
-	if (true) {
+	if (!true) {
 		ini_set('display_errors', 1);
 		ini_set('display_startup_errors', 1);
 		error_reporting(E_ALL);
@@ -15,19 +15,30 @@
 		<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	</head>
 <body>
-<div id='divTeams'>
-	<div class="heading">Step 1 - Choose Team & Year</div>
-	<?php include("ShowTeams.php"); ?>
+<div class="steps" id="Step1">
+	<div class="heading">
+		Step 1<br>
+		Choose Team & Year
+	</div>
+	<div id="divShowTeams">
+		<?php include("ShowTeams.php"); ?>
+	</div>
 </div>
 
-<div id="divLineup">
-	<div class="heading">Step 2 - Drag Players to Choose Your Lineup</div>
+<div class="steps" id="Step2">
+	<div class="heading">
+		Step 2<br>
+		Drag Players to Choose Your Lineup
+	</div>
 	<ul id='sortable'></ul>
 </div>
 
-<div id="divPlayBall">
-	<div class="heading">Step 3 - Play Ball !</div>
-	<button id='btnRunSchedule' onclick='RunSchedule();'>Run</button>
+<div class="steps" id="Step3">
+	<div class="heading">
+		Step 3</br>
+		Play Ball !
+	</div>
+	<button id='btnRunSchedule' onclick='RunSchedule();'>Play Ball !</button>
 	<br>
 	<div id="divResults"></div>
 	<img id="imgSpinBall" src="ball.png" alt="">

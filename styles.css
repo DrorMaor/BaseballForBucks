@@ -8,28 +8,15 @@
     100% { transform: rotate(360deg); }
 }
 
-#divTeams {
+.steps {
     position: relative;
-    left: 5px;
-    top: 5px;
-    height: 350px;
-    width: 300px;
+    display: table-cell;
+    padding: 5px;
+}
+
+#divShowTeams {
     overflow-y: scroll;
-}
-
-#divLineup {
-    position: absolute;
-    left: 350px;
-    top: 5px;
-    width: 400px;
-}
-
-#divCreateLineup {
-    position: absolute;
-}
-
-#divPlayBall {
-    
+    height: 300px;
 }
 
 .lineup {
@@ -44,4 +31,5 @@
 .heading {
     font-weight: bold;
     font-size: 24px;
+    margin: 5px;
 }

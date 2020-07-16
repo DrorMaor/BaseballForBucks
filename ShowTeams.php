@@ -10,10 +10,10 @@
 	foreach($sql as $row => $cols) {
 		$TeamID = $cols['teamID'];
 		echo "<tr class='tr' id='tr_$TeamID'>";
-		echo "<td>".$cols['city']." ".$cols['name']."</td>";
+		echo "<td>" . $cols['city'] . " " . $cols['name'] . "</td>";
 		echo "<td> <select id='TeamYear_$TeamID' onclick='SelectTeamYear($TeamID);'>";
 		for ($y = $cols['min']; $y <= $cols['max']; $y++)
-			echo "<option value='".$TeamID."_".$y."'>".$y;
+			echo "<option value='" . $TeamID . "_" . $y . "'>" . $y;
 		echo "</select> </td>";
 		echo "</tr>";
 	}

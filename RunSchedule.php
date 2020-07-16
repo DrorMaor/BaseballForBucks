@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
     $team = $_GET["team"];
     $year = $_GET["year"];
@@ -17,8 +14,13 @@ error_reporting(E_ALL);
         inner join ActualSeasons s on t.id = s.team
         where t.id = $team and s.year = $year ;");
     $sql->execute();
-    foreach($sql as $row => $cols)
-        echo json_encode($cols);
+
+    foreach($sql as $row => $cols) {
+        $results = "The " . $cols["city"] . " " . $cols["name"] . " went " . $cols["W"] . "-" . $cols["L"] . " in " . $year . "<br>";
+        $results .= "In the simulated season with your lineup, they went " . $schedule->W . "-" . $schedule->L . ".";
+        //echo json_encode($cols);
+    }
+    echo $results;
     $conn = null;
 
     function SaveUserLineup($conn, $team, $year, $lineup) {

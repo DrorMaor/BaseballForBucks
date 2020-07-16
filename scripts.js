@@ -33,9 +33,9 @@ function CreateLineup() {
 
 function DisplayLineupResults(response) {
     var json = JSON.parse(response);
-    $("#divLineup ul").empty();
+    $("#Step2 ul").empty();
     for (i = 0; i < json.length; i++)
-        $("#divLineup ul").append("<li class='lineup' id='" + json[i].id + "'>" + json[i].name + "</li> ");
+        $("#Step2 ul").append("<li class='lineup' id='" + json[i].id + "'>" + json[i].name + "</li> ");
 }
 
 function RunSchedule() {
@@ -62,8 +62,8 @@ function UserLineup() {
 }
 
 function DisplayScheduleResults(response) {
-    var json = JSON.parse(response);
-    var s = "the " + json.city + " " + json.name + " went " + json.W + "-" + json.L + " in " + json.year;
+    //var json = JSON.parse(response);
+    //var s = "the " + json.city + " " + json.name + " went " + json.W + "-" + json.L + " in " + json.year;
     $("#divResults").text(response);
 
 
