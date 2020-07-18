@@ -1,11 +1,3 @@
-<?php
-	if (!true) {
-		ini_set('display_errors', 1);
-		ini_set('display_startup_errors', 1);
-		error_reporting(E_ALL);
-	}
-?>
-
 <html>
 	<head>
 		<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -28,7 +20,7 @@
 <div class="steps" id="Step2">
 	<div class="heading">
 		Step 2<br>
-		Drag Players to Choose Your Lineup
+		Choose Your Lineup
 	</div>
 	<ul id='sortable'></ul>
 </div>

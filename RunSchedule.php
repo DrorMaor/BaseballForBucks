@@ -1,4 +1,5 @@
 <?php
+    require("DisplayErrors.php");
 
     $team = $_GET["team"];
     $year = $_GET["year"];

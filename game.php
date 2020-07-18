@@ -23,7 +23,8 @@ class game {
     private $HomeTeam;
     private $gameNum;
 
-    public function __construct($team, $year, $season, $AwayTeam, $HomeTeam, $gameNum) {
+    public function __construct($teams, $team, $year, $season, $AwayTeam, $HomeTeam, $gameNum) {
+        $this->teams = $teams;   // this will be both teams' lineups
         $this->team = $team;
         $this->year = $year;
         $this->season = $season;
@@ -33,9 +34,6 @@ class game {
 
         require_once ("classes/inning.php");
         require_once ("classes/count.php");
-        require_once ("classes/team.php");
-        require_once ("classes/batter.php");
-        require_once ("classes/pitcher.php");
 
         $this->bti = 0;
         $this->inning = new inning();
@@ -51,119 +49,9 @@ class game {
     }
 
     function start() {
-        $this->GetLineup();
+
         $this->PlayBall();
     }
-
-
-    /////////////////
-    // LINEUP code //
-    /////////////////
-    function GetLineup() {
-        require ("DBconn.php");
-
-        // for the batters, if the home or away team is the one that the member is playing,
-        // so we get his lineup instead of the actual one
-
-        // away team
-        $team = new team();
-        if ($this->team == $this->AwayTeam)
-            $team->batters = $this->GetBatters($conn, -1, -1, $this->season);
-        else
-            $team->batters = $this->GetBatters($conn, $this->team, $this->year, -1);
-        $team->pitchers = $this->GetPitchers($conn, $this->AwayTeam, $this->year);
-        $this->GetTeamData($conn, $team, $this->year, $this->AwayTeam);
-        array_push($this->teams, $team);
-
-        // home team
-        $team = new team();
-        if ($this->team == $this->HomeTeam)
-            $team->batters = $this->GetBatters($conn, -1, -1, $this->season);
-        else
-            $team->batters = $this->GetBatters($conn, $this->team, $this->year, -1);
-        $team->pitchers = $this->GetPitchers($conn, $this->HomeTeam, $this->year);
-        $this->GetTeamData($conn, $team, $this->year, $this->HomeTeam);
-        array_push($this->teams, $team);
-
-        $conn = null;
-    }
-
-    function GetTeamData($conn, &$team, $year, $teamID) {
-        $sql = $conn->prepare("select * from ActualTeams t inner join ActualSeasons s on s.team = t.id where t.id = $teamID and s.year = $year; ");
-        $sql->execute();
-        foreach($sql as $row => $cols) {
-            $team->city = $cols["city"];
-            $team->name = $cols["name"];
-            $team->W = $cols["W"];
-            $team->L = $cols["L"];
-        }
-        $conn = null;
-    }
-
-    function GetBatters($conn, $team, $year, $season) {
-        $Team = new Team();
-        if ($season != -1)
-            $sql = $conn->prepare("select * from ActualBatters where id in (select batter from SeasonsLineup where season = $season) ;");
-        else
-            $sql = $conn->prepare("select * from ActualBatters where team = $team and year = $year;");
-        $sql->execute();
-        foreach($sql as $row => $cols) {
-            $b = new batter();
-            $b->name = $cols["name"];
-            $b->AVG = $cols["AVG"];
-            $b->H = $cols["H"];
-            $b->B2 = $cols["B2"];
-            $b->B3 = $cols["B3"];
-            $b->HR = $cols["HR"];
-            array_push($Team->batters, $b);
-    	}
-        return $Team->batters;
-    }
-
-    function GetPitchers($conn, $team, $year) {
-        $id = 0;
-        $Team = new Team();
-        $sql = $conn->prepare("select * from ActualPitchers where team = $team and year = $year;");
-        $sql->execute();
-        foreach($sql as $row => $cols) {
-            $p = new pitcher();
-            $p->id = $id;  // used to determine who's this game's starter
-            $p->name = $cols["name"];
-            $p->ERA = $cols["ERA"];
-            $p->AvgInnPerGame = $cols["AvgInnPerGame"];
-            $p->type = $cols['type'];  // (R/S) for Reliever or Starter
-            array_push($Team->pitchers, $p);
-            $id++;
-    	}
-
-        // -----------------------------------------///
-        // select the starter, based on the rotation //
-        // -----------------------------------------///
-
-        // put all starters in temp array
-        $starters = array();
-        foreach ($Team->pitchers as $pitcher) {
-            if ($pitcher->type == "S")
-                array_push($starters, $pitcher->id);
-        }
-
-        // determine today's starter
-        $starterID = $starters[$this->gameNum % count($starters)];
-
-        // here we remove all other starters besides this game's starter
-        $counter = 0;
-        foreach ($Team->pitchers as $pitcher) {
-            if ($pitcher->type == "S" && $pitcher->id != $starterID)
-                unset($Team->pitchers[$counter]);
-            $counter++;
-        }
-
-        return $Team->pitchers;
-    }
-    /////////////////////
-    // end LINEUP code //
-    /////////////////////
-
 
     function PlayBall() {
         $this->teams[0]->AtBatNum = 0;
@@ -173,17 +61,17 @@ class game {
 
     function StartInning() {
         // reset the inning numbers
-        $this->inning->runners = "000";
-        $this->CheckPitchingChange();
-        $this->inning->outs = 0;
         $this->InningFrame++;
         $this->bti = $this->InningFrame % 2;
+        $this->inning->runners = "000";
+        $this->CheckForPitchingChange();
+        $this->inning->outs = 0;
         while ($this->inning->outs < 3)
             $this->DoAtBat();
         $this->EndInning();
     }
 
-    function CheckPitchingChange() {
+    function CheckForPitchingChange() {
         $team = $this->teams[$this->bti];
         if ($team->pitchers[$team->pitcher]->AvgInnPerGame == $team->CurPitcherInns) {
             if (count($team->pitchers) > $team->pitcher + 1) {
@@ -204,8 +92,9 @@ class game {
 
         // ERA3 is ERA adjusted to 3.0
         // (3.00 is a decent ERA, and anothing higher would make the batter stronger,
-        //  and anything lower would make the batter weaker)
+        // and anything lower would make the batter weaker)
         $ERA3 = $team->pitchers[$team->pitcher]->ERA - 3.33;
+
         // GBOP = Getting Batter Out Percentage, we adjust the ERA3 based on the AVG
         // so we have a fair chance at a hit/out, based on both pitcher & batter
         $GBOP = $CurrBtr->AVG + ($ERA3 / 50);
