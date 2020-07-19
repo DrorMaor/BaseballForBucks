@@ -37,16 +37,17 @@ class GetGameLineup {
 
     function DoEachTeam($AwayHomeTeam, $conn) {
         $team = new team();
+        $team = $this->GetTeamData($conn, $AwayHomeTeam, $this->year);
         if ($this->team == $AwayHomeTeam)
             $team->batters = $this->GetBatters($conn, -1, -1, $this->season);
         else
-            $team->batters = $this->GetBatters($conn, $this->team, $this->year, -1);
+            $team->batters = $this->GetBatters($conn, $AwayHomeTeam, $this->year, -1);
         $team->pitchers = $this->GetPitchers($conn, $AwayHomeTeam, $this->year);
-        $this->GetTeamData($conn, $this->team, $this->year, $AwayHomeTeam);
         array_push($this->teams, $team);
     }
 
-    function GetTeamData($conn, &$team, $year, $teamID) {
+    function GetTeamData($conn, $teamID, $year) {
+        $team = new team();
         $sql = $conn->prepare("select * from ActualTeams t inner join ActualSeasons s on s.team = t.id where t.id = $teamID and s.year = $year; ");
         $sql->execute();
         foreach($sql as $row => $cols) {
@@ -55,12 +56,13 @@ class GetGameLineup {
             $team->W = $cols["W"];
             $team->L = $cols["L"];
         }
+        return $team;
     }
 
     function GetBatters($conn, $team, $year, $season) {
         $Team = new Team();
         if ($season != -1)
-            $sql = $conn->prepare("select * from ActualBatters where id in (select batter from SeasonsLineup where season = $season) ;");
+            $sql = $conn->prepare("select * from ActualBatters where id in (select batter from SeasonsLineup where season = $season);");
         else
             $sql = $conn->prepare("select * from ActualBatters where team = $team and year = $year;");
         $sql->execute();
