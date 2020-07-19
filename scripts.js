@@ -39,7 +39,7 @@ function DisplayLineupResults(response) {
 }
 
 function RunSchedule() {
-    $("#divResults").text("It'll take about 10-15 seconds to simulate all the games");
+    $("#divResults").text("It'll take a few seconds to simulate all the games");
     $("#imgSpinBall").show();
     $.ajax({
         type: "GET",

@@ -1,4 +1,5 @@
 <?php
+
     class schedule {
         private $team;
         private $year;
@@ -23,15 +24,13 @@
             // get the schedule
             require("DBconn.php");
 
-            $sql = $conn->prepare("select * from ActualSchedules where (AwayTeam = $this->team or HomeTeam = $this->team) and year = $this->year;") ;
+            $sql = $conn->prepare("select * from ActualSchedules where (AwayTeam = $this->team or HomeTeam = $this->team) and year = $this->year;");
             $sql->execute();
             foreach ($sql as $row => $cols) {
                 $GetGameLineup = new GetGameLineup($this->team, $this->year, $this->season, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
                 $GetGameLineup->start();
-                $teams = array();
-                array_push($teams, $GetGameLineup->teams);
                 for ($i = 0; $i < $cols["games"]; $i++) {
-                    $this->PlayEachGame($teams, $gameNum);
+                    $this->PlayEachGame($GetGameLineup->teams, $gameNum);
                     $gameNum++;
                 }
             }

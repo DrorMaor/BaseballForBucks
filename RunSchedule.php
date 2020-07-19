@@ -1,5 +1,5 @@
 <?php
-    include("DisplayErrors.php");
+    //include("DisplayErrors.php");
 
     $team = $_GET["team"];
     $year = $_GET["year"];

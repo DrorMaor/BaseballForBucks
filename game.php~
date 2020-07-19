@@ -40,7 +40,7 @@ class game {
         $this->count = new count();
         $this->MaxErrors = floor($this->GetRand()*6);
         $this->ErrorCount = 0;
-        $this->InningFrame = -0.5;
+        $this->InningFrame = -1;
         $this->GameOver = false;
     }
 
@@ -49,28 +49,31 @@ class game {
     }
 
     function start() {
+        $this->PlayBall();
+    }
+
+    function PlayBall() {
+        $this->teams[0]->AtBatNum = 0;
+        $this->teams[1]->AtBatNum = 0;
         $this->StartInning();
     }
 
     function StartInning() {
         // reset the inning numbers
-        $this->InningFrame += 0.5;
-        if (floor($this->InningFrame) == $this->InningFrame)
-            $this->bti = 0;
-        else
-            $this->bti = 1;
-        $this->CheckForPitchingChange();
+        $this->InningFrame++;
+        $this->bti = $this->InningFrame % 2;
         $this->inning->runners = "000";
+        $this->CheckForPitchingChange();
         $this->inning->outs = 0;
-        while ($this->inning->outs < 3)
+        while ($this->inning->outs < 3 && !$this->GameOver)
             $this->DoAtBat();
         $this->EndInning();
     }
 
     function CheckForPitchingChange() {
-        $tempTeam = $this->teams[$this->bti];
-        if ($tempTeam->pitchers[$tempTeam->pitcher]->AvgInnPerGame == $tempTeam->CurPitcherInns) {
-            if (count($tempTeam->pitchers) > $tempTeam->pitcher + 1) {
+        $team = $this->teams[$this->bti];
+        if ($team->pitchers[$team->pitcher]->AvgInnPerGame == $team->CurPitcherInns) {
+            if (count($team->pitchers) > $team->pitcher + 1) {
                 $this->teams[$this->bti]->pitcher++;
                 $this->teams[$this->bti]->CurPitcherInns = 0;
             }
@@ -83,18 +86,17 @@ class game {
 
         // determine if it's a hit or out
 
-        $tempTeam = $this->teams[$this->bti];
-        $CurrBtr = $tempTeam->batters[$tempTeam->AtBatNum];
+        $team = $this->teams[$this->bti];
+        $CurrBtr = $team->batters[$team->AtBatNum];
 
         // ERA3 is ERA adjusted to 3.0
         // (3.00 is a decent ERA, and anothing higher would make the batter stronger,
         // and anything lower would make the batter weaker)
-        $ERA3 = $tempTeam->pitchers[$tempTeam->pitcher]->ERA - 3.33;
+        $ERA3 = $team->pitchers[$team->pitcher]->ERA - 3.33;
 
         // GBOP = Getting Batter Out Percentage, we adjust the ERA3 based on the AVG
         // so we have a fair chance at a hit/out, based on both pitcher & batter
         $GBOP = $CurrBtr->AVG + ($ERA3 / 50);
-
         if ($this->GetRand() < $GBOP) {
             // he's on base
 
@@ -127,12 +129,15 @@ class game {
         $this->teams[$this->bti]->CurPitcherInns++;  // needed to determine if pitching change is due
 
         // determine whether to end the game, or start another inning
-        if ($this->InningFrame == 8.5 && $this->teams[1]->score > $this->teams[0]->score)
+        if ($this->InningFrame == 16 && $this->teams[1]->score > $this->teams[0]->score) {
             // bottom of the 9th, home team ahead
             $this->GameOver = true;
-        elseif ($this->InningFrame >= 9.0 && $this->bti == 1 && $this->teams[1]->score != $this->teams[0]->score)
+            return;
+        }
+        elseif ($this->InningFrame >= 17 && $this->bti == 1 && $this->teams[1]->score != $this->teams[0]->score) {
             // extra innings, bottom of frame, any team ahead
             $this->GameOver = true;
+        }
         else
             // 1-8 innings, or any other extra inning
             $this->StartInning();
@@ -198,14 +203,16 @@ class game {
 
     function IncrementScore($runs, $HR) {
         $walkoff = false;
-        if ($this->InningFrame >= 8.5 && $this->bti == 1 && ($this->teams[1]->score + $runs) > $this->teams[0]->score) {
+        if ($this->InningFrame >= 17 && $this->bti == 1 && ($this->teams[1]->score + $runs) > $this->teams[0]->score) {
             // in the bottom of the 9+ inning, test for a walkoff, and if so, only count the # of runs needed to win
             // (unless it's a HR, then all runs count)
             $walkoff = true;
-            if (!$HR)
+            if (!$HR) {
                 $runs = $this->teams[0]->score - $this->teams[1]->score + 1;
+            }
         }
         $this->teams[$this->bti]->score += $runs;
+
         if ($walkoff)
             $this->GameOver = true;
     }
