@@ -107,7 +107,10 @@ class GetGameLineup {
         }
 
         // determine today's starter
-        $starterID = $starters[$this->gameNum % count($starters)];
+        if (count($starters) > 0)
+            $starterID = $starters[$this->gameNum % count($starters)];
+        else
+            $starterID = 0;
 
         // here we remove all other starters besides this game's starter
         $counter = 0;

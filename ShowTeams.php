@@ -8,12 +8,15 @@
 		order by t.city, t.name; ");
 	$sql->execute();
 	foreach($sql as $row => $cols) {
-		$TeamID = $cols['teamID'];
-		echo "<tr class='tr' id='tr_$TeamID'>";
-		echo "<td>" . $cols['city'] . " " . $cols['name'] . "</td>";
-		echo "<td> <select id='TeamYear_$TeamID' onclick='SelectTeamYear($TeamID);'>";
+		$teamID = $cols['teamID'];
+		$city = $cols['city'];
+		$name = $cols['name'];
+		echo "<tr class='tr' id='tr_$teamID'>";
+		echo "<td class='td'>" . $city . " " . $name . "</td>";
+		echo "<td class='td'> <select class='TeamYear' id='TeamYear_" . $teamID . "' ";
+		echo "onclick='SelectTeamYear($teamID, \"$city\", \"$name\");'>";
 		for ($y = $cols['min']; $y <= $cols['max']; $y++)
-			echo "<option value='" . $TeamID . "_" . $y . "'>" . $y;
+			echo "<option value='" . $teamID . "_" . $y . "'>" . $y;
 		echo "</select> </td>";
 		echo "</tr>";
 	}

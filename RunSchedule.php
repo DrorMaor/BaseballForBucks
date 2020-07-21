@@ -5,24 +5,19 @@
     $year = $_GET["year"];
     require("DBconn.php");
     $season = SaveUserLineup($conn, $team, $year, $_GET["lineup"]);
+    $conn = null;
 
     require_once("schedule.php");
     $schedule = new schedule($team, $year, $season);
     $schedule->start();
-
-    $sql = $conn->prepare("select t.city, t.name, s.W, s.L
-        from ActualTeams t
-        inner join ActualSeasons s on t.id = s.team
-        where t.id = $team and s.year = $year ;");
-    $sql->execute();
-
-    foreach($sql as $row => $cols) {
-        $results = "The " . $cols["city"] . " " . $cols["name"] . " went " . $cols["W"] . "-" . $cols["L"] . " in " . $year . "<br>";
-        $results .= "In the simulated season with your lineup, they went " . $schedule->W . "-" . $schedule->L . ".";
-        //echo json_encode($cols);
-    }
+    $results .= "In the simulated season with your lineup, they went " . $schedule->W . "-" . $schedule->L . ".";
+    //echo json_encode($cols);
     echo $results;
-    $conn = null;
+    echo "<br> <br>";
+    //for ($i = 0; $i < count($schedule->AllGames); $i++) {
+    //    echo $schedule->AllGames[$i];
+    //}
+    //print_r($schedule->AllGames);
 
     function SaveUserLineup($conn, $team, $year, $lineup) {
         // first, insert new season

@@ -6,6 +6,8 @@
         private $season;
         public $W = 0;
         public $L = 0;
+        // this will save all the W/L of each game (W:1, L:0), so we can plot them later for the results
+        public $AllGames = array();
 
         public function __construct($team, $year, $season) {
             $this->team = $team;
@@ -42,16 +44,24 @@
             $game = new game($teams, $this->team, $this->year, $this->season, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
             $game->start();
             if ($this->team == $cols["AwayTeam"]) {
-                if ($game->teams[0]->score > $game->teams[1]->score)
+                if ($game->teams[0]->score > $game->teams[1]->score) {
                     $this->W++;
-                else
+                    array_push($this->AllGames, 1);
+                }
+                else {
                     $this->L++;
+                    array_push($this->AllGames, 0);
+                }
             }
             else {
-                if ($game->teams[1]->score > $game->teams[0]->score)
+                if ($game->teams[1]->score > $game->teams[0]->score) {
                     $this->W++;
-                else
+                    array_push($this->AllGames, 1);
+                }
+                else {
                     $this->L++;
+                    array_push($this->AllGames, 0);
+                }
             }
         }
     }

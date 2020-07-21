@@ -1,3 +1,7 @@
+body {
+    font-family: Poppins;
+}
+
 #imgSpinBall {
     display: none;
     animation: spin 2s linear infinite;
@@ -8,31 +12,94 @@
     100% { transform: rotate(360deg); }
 }
 
+.td {
+  padding: 8px;
+  font-size: 18px;
+}
+
+.instructions {
+    color: gray;
+    font-size: 18px;
+    padding: 6px;
+}
+
+.TeamYear {
+  font-size: 16px;
+  font-family: Poppins;
+}
+
 .steps {
     position: relative;
     display: table-cell;
     padding: 5px;
+    width: 25vw;
+}
+
+.SeasonMessage {
+    display: none;
+    font-size: 22px;
+    background-color: #1a345e;
+    color: white;
+    border: 0px solid #1a345e; /* Green */
+    border-radius: 5px;
+    text-align: center;
+    padding: 5px;
+}
+
+#PlayBall {
+    background-color: lightskyblue;
+    color: black;
+    border: 2px solid #4CAF50; /* Green */
+    border-radius: 5px;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 5px;
+    padding: 5px;
+    cursor: pointer;
+    display: none;
+}
+
+#PlayBall:hover {
+    opacity: 75%;
+}
+
+#GoogleTeam {
+    margin: auto;
 }
 
 #divShowTeams {
     overflow-y: scroll;
-    height: 300px;
+    height: 80vh;
+}
+
+#ulLineup {
+    overflow-y: scroll;
+    height: 65vh;
 }
 
 .lineup {
     padding: 10px;
-    width: 150px;
+    width: 250px;
     background-color: #e8f0fc;
     list-style-type: none;
     border: 1px solid #b5cff7;
     border-radius: 5px;
-    margin: auto;
     cursor: -webkit-grab;
     cursor: grab;
+    font-size: 14px;
+}
+
+#ulLineup {
+    margin-left: 0;
+}
+
+#GoogleTeam {
+    margin: auto;
 }
 
 .heading {
     font-weight: bold;
     font-size: 24px;
-    margin: 5px;
+    margin: 10px;
+    padding: 10px;
 }
