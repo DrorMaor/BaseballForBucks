@@ -32,18 +32,18 @@
                 $GetGameLineup = new GetGameLineup($this->team, $this->year, $this->season, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
                 $GetGameLineup->start();
                 for ($i = 0; $i < $cols["games"]; $i++) {
-                    $this->PlayEachGame($GetGameLineup->teams, $gameNum);
+                    $this->PlayEachGame($GetGameLineup->teams, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
                     $gameNum++;
                 }
             }
             $conn = null;
         }
 
-        function PlayEachGame($teams, $gameNum) {
+        function PlayEachGame($teams, $AwayTeam, $HomeTeam, $gameNum) {
             // simulate each game
-            $game = new game($teams, $this->team, $this->year, $this->season, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
+            $game = new game($teams, $this->team, $this->year, $this->season, $AwayTeam, $HomeTeam, $gameNum);
             $game->start();
-            if ($this->team == $cols["AwayTeam"]) {
+            if ($this->team == $AwayTeam) {
                 if ($game->teams[0]->score > $game->teams[1]->score) {
                     $this->W++;
                     array_push($this->AllGames, 1);

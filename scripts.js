@@ -6,9 +6,10 @@ function SelectTeamYear(teamID, city, name) {
     ToggleRowBGcolor();
     $("#tr_" + team).css("background-color","#4885e8");
     $("#tr_" + team).css("font-weight","bold");
-    CreateLineup();
-    $("#GoogleTeam").empty();
-    $("#GoogleTeam").append("<a target='_blank' href='https://www.google.com/search?q=" + city + "+" + name + "+" + year +"'><img alt='Research this team' src='google.png'></a>");
+    CreateLineup(0);
+    //$("#divTools").empty();
+    $("#GoogleTeam").attr("href", "https://www.google.com/search?q=" + city + "+" + name + "+" + year);
+    $("#divTools").show();
     $("#PlayBall").show();
 }
 
@@ -19,6 +20,7 @@ function TeamYearSplit(teamID) {
 }
 
 $( function() {
+    $( document ).tooltip();
     $("#ulLineup").sortable();
     $("#ulLineup").disableSelection();
     ToggleRowBGcolor();
@@ -30,9 +32,8 @@ function ToggleRowBGcolor () {
     $(".tr").css("font-weight", "normal");
 }
 
-function CreateLineup() {
+function CreateLineup(computer) {
     // show actual season's summary
-    $("#Step2_instructions").hide();
     $.ajax({
         type: "GET",
         url: "TeamSeasonSummary.php?team=" + team + "&year=" + year,
@@ -47,7 +48,7 @@ function CreateLineup() {
     // show the actual lineup
     $.ajax({
         type: "GET",
-        url: "GetLineup.php?team=" + team + "&year=" + year,
+        url: "GetLineup.php?team=" + team + "&year=" + year + "&computer=" + computer,
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
@@ -59,15 +60,17 @@ function CreateLineup() {
 }
 
 function RunSchedule() {
-    $("#Step3_instructions").hide();
-    $("#imgSpinBall").show();
+    $("#SpinBall").show();
+    $("#PlayBall").hide();
+    $("#SimulatedSeasonResults").hide();
     $.ajax({
         type: "GET",
         url: "RunSchedule.php?team=" + team + "&year=" + year + "&lineup=" + UserLineup(),
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
-            $("#imgSpinBall").hide();
+            $("#SpinBall").hide();
+            $("#PlayBall").show();
             DisplayScheduleResults(response);
         }
     });
@@ -83,7 +86,7 @@ function DisplayLineupResults(response) {
         table += "<strong>" + json[i].name + "</strong><br>AVG: " + json[i].AVG.replace('0.', '.') + ", " + json[i].HR + " HR";
         table += "</td>";
         table += "<td style='width:50px;'>";
-        table += "<a target='_blank' href='https://www.google.com/search?q=" + json[i].name +"'><img alt='Research this player' src='g.png'></a>"
+        table += "<a target='_blank' href='https://www.google.com/search?q=" + json[i].name +"'><img alt='Research this player' src='images/g.png'></a>"
         table += "</td>";
         table += "</tr>";
         table += "</table>";

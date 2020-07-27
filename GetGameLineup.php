@@ -17,9 +17,9 @@ class GetGameLineup {
         $this->HomeTeam = $HomeTeam;
         $this->gameNum = $gameNum;
 
-        require_once ("classes/team.php");
-        require_once ("classes/batter.php");
-        require_once ("classes/pitcher.php");
+        require_once ("DataClasses/team.php");
+        require_once ("DataClasses/batter.php");
+        require_once ("DataClasses/pitcher.php");
     }
 
     function start() {
@@ -31,19 +31,16 @@ class GetGameLineup {
     function GetLineup($conn) {
         // for the batters, if the home or away team is the one that the member is playing,
         // so we get his lineup instead of the actual one
-        $this->DoEachTeam($this->AwayTeam, $conn);
-        $this->DoEachTeam($this->HomeTeam, $conn);
+        array_push($this->teams, $this->DoEachTeam($this->AwayTeam, $conn));
+        array_push($this->teams, $this->DoEachTeam($this->HomeTeam, $conn));
     }
 
     function DoEachTeam($AwayHomeTeam, $conn) {
         $team = new team();
         $team = $this->GetTeamData($conn, $AwayHomeTeam, $this->year);
-        if ($this->team == $AwayHomeTeam)
-            $team->batters = $this->GetBatters($conn, -1, -1, $this->season);
-        else
-            $team->batters = $this->GetBatters($conn, $AwayHomeTeam, $this->year, -1);
+        $team->batters = $this->GetBatters($conn, $AwayHomeTeam, $this->year, $this->season);
         $team->pitchers = $this->GetPitchers($conn, $AwayHomeTeam, $this->year);
-        array_push($this->teams, $team);
+        return $team;
     }
 
     function GetTeamData($conn, $teamID, $year) {

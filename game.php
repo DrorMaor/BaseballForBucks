@@ -3,6 +3,7 @@
 class game {
     public $teams = array();
     private $bti;  // Batting Team Index (too long to write full name each time)
+    private $pti;  // Pitching Team Index ( " " " )
     private $inning;
     private $count;
 
@@ -13,8 +14,6 @@ class game {
 
     // this will increment by 1 with each top/bottom of inning, and will be a running total, but we can determine (for printing reasons) the actual inning # and top/bottom
     public $InningFrame;
-
-    private $GameOver;
 
     private $team;  // to know if it's the home or away team
     private $year;
@@ -32,16 +31,16 @@ class game {
         $this->HomeTeam = $HomeTeam;
         $this->gameNum = $gameNum;
 
-        require_once ("classes/inning.php");
-        require_once ("classes/count.php");
+        require_once ("DataClasses/inning.php");
+        require_once ("DataClasses/count.php");
 
         $this->bti = 0;
+        $this->pti = 1;
         $this->inning = new inning();
         $this->count = new count();
         $this->MaxErrors = floor($this->GetRand()*6);
         $this->ErrorCount = 0;
         $this->InningFrame = -0.5;
-        $this->GameOver = false;
     }
 
     function GetRand() {
@@ -55,24 +54,31 @@ class game {
     function StartInning() {
         // reset the inning numbers
         $this->InningFrame += 0.5;
-        if (floor($this->InningFrame) == $this->InningFrame)
+        if (floor($this->InningFrame) == $this->InningFrame) {
             $this->bti = 0;
-        else
+            $this->pti = 1;
+        }
+        else {
             $this->bti = 1;
-        $this->CheckForPitchingChange();
+            $this->pti = 0;
+        }
+        $this->CheckForPitchingChange($this->teams[$this->pti]);  // it's the other team that's pitching
         $this->inning->runners = "000";
         $this->inning->outs = 0;
-        while ($this->inning->outs < 3)
+        while (true) {
             $this->DoAtBat();
-        $this->EndInning();
+            if ($this->inning->outs == 3) {
+                $this->EndInning();
+                break;
+            }
+        }
     }
 
-    function CheckForPitchingChange() {
-        $tempTeam = $this->teams[$this->bti];
-        if ($tempTeam->pitchers[$tempTeam->pitcher]->AvgInnPerGame == $tempTeam->CurPitcherInns) {
-            if (count($tempTeam->pitchers) > $tempTeam->pitcher + 1) {
-                $this->teams[$this->bti]->pitcher++;
-                $this->teams[$this->bti]->CurPitcherInns = 0;
+    function CheckForPitchingChange(&$PitchingTeam) {
+        if ($PitchingTeam->pitchers[$PitchingTeam->pitcher]->AvgInnPerGame == $PitchingTeam->CurrPitcherInns) {
+            if (count($PitchingTeam->pitchers) > $PitchingTeam->pitcher + 1) {
+                $PitchingTeam->pitcher++;
+                $PitchingTeam->CurrPitcherInns = 0;
             }
         }
     }
@@ -83,13 +89,14 @@ class game {
 
         // determine if it's a hit or out
 
-        $tempTeam = $this->teams[$this->bti];
-        $CurrBtr = $tempTeam->batters[$tempTeam->AtBatNum];
+        $BattingTeam = $this->teams[$this->bti];
+        $PitchingTeam = $this->teams[$this->pti];
+        $CurrBtr = $BattingTeam->batters[$BattingTeam->batter];
 
         // ERA3 is ERA adjusted to 3.0
         // (3.00 is a decent ERA, and anothing higher would make the batter stronger,
         // and anything lower would make the batter weaker)
-        $ERA3 = $tempTeam->pitchers[$tempTeam->pitcher]->ERA - 3.33;
+        $ERA3 = $PitchingTeam->pitchers[$PitchingTeam->pitcher]->ERA - 3.33;
 
         // GBOP = Getting Batter Out Percentage, we adjust the ERA3 based on the AVG
         // so we have a fair chance at a hit/out, based on both pitcher & batter
@@ -97,7 +104,7 @@ class game {
 
         if ($this->GetRand() < $GBOP) {
             // he's on base
-
+            
             // calculate type of hit %age
             $B2 = $CurrBtr->B2 / $CurrBtr->H;
             $B3 = $CurrBtr->B3 / $CurrBtr->H;
@@ -115,27 +122,29 @@ class game {
                 $this->DoHit(1);
         } elseif (!$this->TryError())
             $this->DoOut(false);  // he's out
-
-        if ($this->inning->outs == 3)
-            $this->EndInning();
     }
 
     function EndInning() {
         // all this occurs at the end of an inning, BEFORE we increment the inning # and frame
         // (which we do at the beginning of StartInning)
 
-        $this->teams[$this->bti]->CurPitcherInns++;  // needed to determine if pitching change is due
+        $this->teams[$this->bti]->CurrPitcherInns++;  // needed to determine if pitching change is due
 
         // determine whether to end the game, or start another inning
         if ($this->InningFrame == 8.5 && $this->teams[1]->score > $this->teams[0]->score)
             // bottom of the 9th, home team ahead
-            $this->GameOver = true;
+            $this->GameOver();
         elseif ($this->InningFrame >= 9.0 && $this->bti == 1 && $this->teams[1]->score != $this->teams[0]->score)
             // extra innings, bottom of frame, any team ahead
-            $this->GameOver = true;
+            $this->GameOver();
         else
             // 1-8 innings, or any other extra inning
             $this->StartInning();
+    }
+
+    function GameOver() {
+        $this->inning->outs = 3;
+        echo $this->teams[0]->score . "-" . $this->teams[1]->score . "<br>";
     }
 
     function TryError() {
@@ -163,9 +172,9 @@ class game {
     }
 
     function AdvanceLineup() {
-        $this->teams[$this->bti]->AtBatNum++;
-        if ($this->teams[$this->bti]->AtBatNum % 9 == 0)
-            $this->teams[$this->bti]->AtBatNum = 0;
+        $this->teams[$this->bti]->batter++;
+        if ($this->teams[$this->bti]->batter % 9 == 0)
+            $this->teams[$this->bti]->batter = 0;
     }
 
     function TryDoublePlay ($pos) {
@@ -207,7 +216,7 @@ class game {
         }
         $this->teams[$this->bti]->score += $runs;
         if ($walkoff)
-            $this->GameOver = true;
+            $this->GameOver();
     }
 
     function AdvanceRunners($bases, $pos) {

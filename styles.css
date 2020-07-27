@@ -2,7 +2,50 @@ body {
     font-family: Poppins;
 }
 
-#imgSpinBall {
+#divTools {
+    display: none;
+    text-align: center;
+}
+
+.tools {
+    cursor: pointer;
+}
+.tools:hover {
+    opacity: 75%;
+}
+
+#leftMenu {
+    width: 19vw;
+}
+
+#logo {
+    padding: 10px;
+    margin: 10px;
+    position: absolute;
+    left: 5;
+    top: 5;
+}
+
+#beta {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    font-size: 34px;
+    height: 50px;
+    width: 90px;
+    padding: 10px;
+    margin: 10px;
+    text-align: center;
+    vertical-align: middle;
+    -ms-transform: rotate(33deg); /* IE 9 */
+    transform: rotate(33deg);
+    position: absolute;
+    right: 0;
+    top: 30;
+    opacity: .85;
+}
+
+#SpinBall {
     display: none;
     animation: spin 2s linear infinite;
     height:50px;
@@ -15,6 +58,7 @@ body {
 .td {
   padding: 8px;
   font-size: 18px;
+  color: #000c2b;
 }
 
 .instructions {
@@ -25,22 +69,20 @@ body {
 
 .TeamYear {
   font-size: 16px;
-  font-family: Poppins;
+  font-family: Arial;
 }
 
 .steps {
-    position: relative;
     display: table-cell;
     padding: 5px;
-    width: 25vw;
+    width: 28vw;
 }
 
 .SeasonMessage {
     display: none;
     font-size: 22px;
-    background-color: #1a345e;
+    background-color: #000c2b;
     color: white;
-    border: 0px solid #1a345e; /* Green */
     border-radius: 5px;
     text-align: center;
     padding: 5px;
@@ -49,18 +91,23 @@ body {
 #PlayBall {
     background-color: lightskyblue;
     color: black;
-    border: 2px solid #4CAF50; /* Green */
+    border: 2px solid #4CAF50;
     border-radius: 5px;
     font-size: 28px;
     font-weight: bold;
-    padding: 5px;
-    padding: 5px;
+    padding: 15px;
+    padding: 15px;
     cursor: pointer;
     display: none;
 }
 
 #PlayBall:hover {
     opacity: 75%;
+}
+
+#RunSchedule {
+    margin: auto;
+    text-align: center;
 }
 
 #GoogleTeam {
@@ -70,11 +117,18 @@ body {
 #divShowTeams {
     overflow-y: scroll;
     height: 80vh;
+    border-left: 1px solid blue;
+}
+
+#tblShowTeams {
+    margin: auto;
 }
 
 #ulLineup {
     overflow-y: scroll;
-    height: 65vh;
+    height: 50vh;
+    text-align: right;
+    margin: auto;
 }
 
 .lineup {
@@ -87,10 +141,7 @@ body {
     cursor: -webkit-grab;
     cursor: grab;
     font-size: 14px;
-}
-
-#ulLineup {
-    margin-left: 0;
+    margin: auto;
 }
 
 #GoogleTeam {

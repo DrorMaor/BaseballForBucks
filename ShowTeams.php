@@ -1,4 +1,4 @@
-<table>
+<table id="tblShowTeams">
 <?php
 	require("DBconn.php");
 	$sql = $conn->prepare("select t.id teamID, t.city, t.name, min(s.year) min, max(s.year) max
