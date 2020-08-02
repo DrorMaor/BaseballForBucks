@@ -7,15 +7,15 @@ class GetGameLineup {
     private $season;
     private $AwayTeam;
     private $HomeTeam;
-    private $gameNum;
+    private $GameNum;
 
-    public function __construct($team, $year, $season, $AwayTeam, $HomeTeam, $gameNum) {
+    public function __construct($team, $year, $season, $AwayTeam, $HomeTeam, $GameNum) {
         $this->team = $team;
         $this->year = $year;
         $this->season = $season;
         $this->AwayTeam = $AwayTeam;
         $this->HomeTeam = $HomeTeam;
-        $this->gameNum = $gameNum;
+        $this->GameNum = $GameNum;
 
         require_once ("DataClasses/team.php");
         require_once ("DataClasses/batter.php");
@@ -45,13 +45,17 @@ class GetGameLineup {
 
     function GetTeamData($conn, $teamID, $year) {
         $team = new team();
-        $sql = $conn->prepare("select * from ActualTeams t inner join ActualSeasons s on s.team = t.id where t.id = $teamID and s.year = $year; ");
+        $sql = $conn->prepare("select * from ActualTeams t inner join ActualSeasons s on s.team = t.id where t.id = $teamID and s.year = $year");
         $sql->execute();
         foreach($sql as $row => $cols) {
             $team->city = $cols["city"];
             $team->name = $cols["name"];
             $team->W = $cols["W"];
             $team->L = $cols["L"];
+            $team->HomeW = $cols["HomeW"];
+            $team->HomeL = $cols["HomeL"];
+            $team->AwayW = $cols["AwayW"];
+            $team->AwayL = $cols["AwayL"];
         }
         return $team;
     }
@@ -59,7 +63,7 @@ class GetGameLineup {
     function GetBatters($conn, $team, $year, $season) {
         $Team = new Team();
         if ($season != -1)
-            $sql = $conn->prepare("select * from ActualBatters where id in (select batter from SeasonsLineup where season = $season);");
+            $sql = $conn->prepare("select * from ActualBatters where id in (select batter from SeasonsLineup where season = $season)");
         else
             $sql = $conn->prepare("select * from ActualBatters where team = $team and year = $year;");
         $sql->execute();
@@ -92,9 +96,9 @@ class GetGameLineup {
             $id++;
         }
 
-        // -----------------------------------------///
+        // ----------------------------------------- //
         // select the starter, based on the rotation //
-        // -----------------------------------------///
+        // ----------------------------------------- //
 
         // put all starters in temp array
         $starters = array();
@@ -105,7 +109,7 @@ class GetGameLineup {
 
         // determine today's starter
         if (count($starters) > 0)
-            $starterID = $starters[$this->gameNum % count($starters)];
+            $starterID = $starters[$this->GameNum % count($starters)];
         else
             $starterID = 0;
 
@@ -116,6 +120,7 @@ class GetGameLineup {
                 unset($Team->pitchers[$counter]);
             $counter++;
         }
+        $Team->pitchers = array_values($Team->pitchers);
 
         return $Team->pitchers;
     }

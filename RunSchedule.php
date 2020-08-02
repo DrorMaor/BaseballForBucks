@@ -10,14 +10,9 @@
     require_once("schedule.php");
     $schedule = new schedule($team, $year, $season);
     $schedule->start();
-    $results .= "In the simulated season with your lineup, they went " . $schedule->W . "-" . $schedule->L . ".";
+    $results .= "In the simulated season with your lineup, they went " . $schedule->W . "-" . $schedule->L. ".";
     //echo json_encode($cols);
     echo $results;
-    echo "<br> <br>";
-    //for ($i = 0; $i < count($schedule->AllGames); $i++) {
-    //    echo $schedule->AllGames[$i];
-    //}
-    //print_r($schedule->AllGames);
 
     function SaveUserLineup($conn, $team, $year, $lineup) {
         // first, insert new season

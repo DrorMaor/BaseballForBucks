@@ -17,20 +17,18 @@ class game {
 
     private $team;  // to know if it's the home or away team
     private $year;
-    private $season;  // so we know which lineup the member chose
     private $AwayTeam;
     private $HomeTeam;
-    private $gameNum;
-
-    public function __construct($teams, $team, $year, $season, $AwayTeam, $HomeTeam, $gameNum) {
+    private $GameOver;
+    
+    public function __construct($teams, $team, $year, $AwayTeam, $HomeTeam) {
         $this->teams = $teams;   // this will be both teams' lineups
         $this->team = $team;
         $this->year = $year;
-        $this->season = $season;
         $this->AwayTeam = $AwayTeam;
         $this->HomeTeam = $HomeTeam;
-        $this->gameNum = $gameNum;
-
+        $this->GameOver = false;
+        
         require_once ("DataClasses/inning.php");
         require_once ("DataClasses/count.php");
 
@@ -42,7 +40,7 @@ class game {
         $this->ErrorCount = 0;
         $this->InningFrame = -0.5;
     }
-
+        
     function GetRand() {
         return rand (0, 999) / 1000;
     }
@@ -65,13 +63,8 @@ class game {
         $this->CheckForPitchingChange($this->teams[$this->pti]);  // it's the other team that's pitching
         $this->inning->runners = "000";
         $this->inning->outs = 0;
-        while (true) {
+        while ($this->inning->outs < 3)
             $this->DoAtBat();
-            if ($this->inning->outs == 3) {
-                $this->EndInning();
-                break;
-            }
-        }
     }
 
     function CheckForPitchingChange(&$PitchingTeam) {
@@ -102,6 +95,15 @@ class game {
         // so we have a fair chance at a hit/out, based on both pitcher & batter
         $GBOP = $CurrBtr->AVG + ($ERA3 / 50);
 
+        // Home/Away W/L %age
+        // (we adjust the hitters chance of getting on base, based on the team's general home/away winning percentage)
+        $HAWL = 0.000;
+        if ($this->team == $this->HomeTeam)
+            $HAWL = $BattingTeam->HomeW / ($BattingTeam->HomeW + $BattingTeam->HomeL);
+        else
+            $HAWL = $BattingTeam->AwayW / ($BattingTeam->AwayW + $BattingTeam->AwayL);
+        $GBOP += $HAWL - .500; 
+        
         if ($this->GetRand() < $GBOP) {
             // he's on base
             
@@ -121,7 +123,7 @@ class game {
             else
                 $this->DoHit(1);
         } elseif (!$this->TryError())
-            $this->DoOut(false);  // he's out
+            $this->DoOut();  // he's out
     }
 
     function EndInning() {
@@ -133,18 +135,16 @@ class game {
         // determine whether to end the game, or start another inning
         if ($this->InningFrame == 8.5 && $this->teams[1]->score > $this->teams[0]->score)
             // bottom of the 9th, home team ahead
-            $this->GameOver();
+            $this->GameOver = true;
         elseif ($this->InningFrame >= 9.0 && $this->bti == 1 && $this->teams[1]->score != $this->teams[0]->score)
             // extra innings, bottom of frame, any team ahead
-            $this->GameOver();
+            $this->GameOver = true;
         else
             // 1-8 innings, or any other extra inning
             $this->StartInning();
-    }
-
-    function GameOver() {
-        $this->inning->outs = 3;
-        echo $this->teams[0]->score . "-" . $this->teams[1]->score . "<br>";
+        
+        if ($this->GameOver) 
+            echo "game over (" . $this->AwayTeam . ")</br>";
     }
 
     function TryError() {
@@ -161,7 +161,7 @@ class game {
             }
         }
         return $error;
-    }
+    } 
 
     function DoHit($bases) {
         // most base hits are out of the infield, so we assume them here
@@ -216,7 +216,7 @@ class game {
         }
         $this->teams[$this->bti]->score += $runs;
         if ($walkoff)
-            $this->GameOver();
+            $this->GameOver = true;
     }
 
     function AdvanceRunners($bases, $pos) {
@@ -403,42 +403,41 @@ class game {
         }
     }
 
-    function DoOut($strikeout) {
-        if (!$strikeout) {
-            $r = $this->GetRand();
-            $pos = 0;
-            // much less likelihood that the pitcher or catcher will do the putout, so we give them a smaller probabililty
-            if ($r < 0.0625)
-                $pos = 1;
-            elseif ($r >= 0.0625 && $r < 0.125)
-                $pos = 2;
-            elseif ($r >= 0.125 && $r < 0.25)
-                $pos = 3;
-            elseif ($r >= 0.25 && $r < 0.375)
-                $pos = 4;
-            elseif ($r >= 0.375 && $r < 0.5)
-                $pos = 5;
-            elseif ($r >= 0.5 && $r < 0.625)
-                $pos = 6;
-            elseif ($r >= 0.625 && $r < 0.75)
-                $pos = 7;
-            elseif ($r >= 0.75 && $r < 0.875)
-                $pos = 8;
-            else
-                $pos = 9;
+    function DoOut() {
+        $r = $this->GetRand();
+        $pos = 0;
+        // much less likelihood that the pitcher or catcher will do the putout, so we give them a smaller probabililty
+        if ($r < 0.0625)
+            $pos = 1;
+        elseif ($r >= 0.0625 && $r < 0.125)
+            $pos = 2;
+        elseif ($r >= 0.125 && $r < 0.25)
+            $pos = 3;
+        elseif ($r >= 0.25 && $r < 0.375)
+            $pos = 4;
+        elseif ($r >= 0.375 && $r < 0.5)
+            $pos = 5;
+        elseif ($r >= 0.5 && $r < 0.625)
+            $pos = 6;
+        elseif ($r >= 0.625 && $r < 0.75)
+            $pos = 7;
+        elseif ($r >= 0.75 && $r < 0.875)
+            $pos = 8;
+        else
+            $pos = 9;
 
-            if ($pos >= 7)
-                $this->AdvanceRunners(-1, $pos);
-            else
-                // this following conditions have to be met for a double play to happen:
-                // 1) there has to be less than 2 outs
-                // 2) not a catcher (rare to have a catcher start a DP)
-                // 3) when function TryDoublePlay returns true it only means that it's possible for a DP,
-                //    but still there's a 10% chance it won't be turned
-                if ($this->inning->outs < 2 && $pos != 2 && $this->TryDoublePlay($pos) && $this->GetRand() < 0.9)
-                    $this->inning->outs++; // this will only be the EXTRA out
+        if ($pos >= 7)
+            $this->AdvanceRunners(-1, $pos);
+        else {
+            // this following conditions have to be met for a double play to happen:
+            // 1) there has to be less than 2 outs
+            // 2) not a catcher (rare to have a catcher start a DP)
+            // 3) when function TryDoublePlay returns true it only means that it's possible for a DP,
+            //    but still there's a 10% chance it won't be turned
+            if ($this->inning->outs < 2 && $pos != 2 && $this->TryDoublePlay($pos) && $this->GetRand() < 0.9)
+                $this->inning->outs++; // this will only be the EXTRA out
         }
-
+        
         $this->inning->outs++;  // always increment the regular out
         $this->AdvanceLineup();
         if ($this->inning->outs == 3)

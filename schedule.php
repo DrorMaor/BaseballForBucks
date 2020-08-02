@@ -6,15 +6,13 @@
         private $season;
         public $W = 0;
         public $L = 0;
-        // this will save all the W/L of each game (W:1, L:0), so we can plot them later for the results
-        public $AllGames = array();
 
         public function __construct($team, $year, $season) {
             $this->team = $team;
             $this->year = $year;
             $this->season = $season;
             require_once("GetGameLineup.php");
-            require_once("game.php");
+            require_once("QuickGame.php");
         }
 
         function start() {
@@ -22,47 +20,50 @@
         }
 
         function GetLineup() {
-            $gameNum = 0;
+            $GameNum = 0;
             // get the schedule
             require("DBconn.php");
-
             $sql = $conn->prepare("select * from ActualSchedules where (AwayTeam = $this->team or HomeTeam = $this->team) and year = $this->year;");
             $sql->execute();
             foreach ($sql as $row => $cols) {
-                $GetGameLineup = new GetGameLineup($this->team, $this->year, $this->season, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
+                $GetGameLineup = new GetGameLineup($this->team, $this->year, $this->season, $cols["AwayTeam"], $cols["HomeTeam"], $GameNum);
                 $GetGameLineup->start();
                 for ($i = 0; $i < $cols["games"]; $i++) {
-                    $this->PlayEachGame($GetGameLineup->teams, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
-                    $gameNum++;
+                    $this->PlayEachGame($GetGameLineup->teams, $cols["AwayTeam"], $cols["HomeTeam"]);
+                    $GameNum++;
                 }
             }
             $conn = null;
         }
 
-        function PlayEachGame($teams, $AwayTeam, $HomeTeam, $gameNum) {
+        function PlayEachGame($teams, $AwayTeam, $HomeTeam) {
             // simulate each game
-            $game = new game($teams, $this->team, $this->year, $this->season, $AwayTeam, $HomeTeam, $gameNum);
+            
+            
+            $game = new game($teams, $this->team, $this->year, $this->season, $AwayTeam, $HomeTeam);
             $game->start();
             if ($this->team == $AwayTeam) {
-                if ($game->teams[0]->score > $game->teams[1]->score) {
+                if ($game->teams[0]->score > $game->teams[1]->score)
                     $this->W++;
-                    array_push($this->AllGames, 1);
-                }
-                else {
+                else
                     $this->L++;
-                    array_push($this->AllGames, 0);
-                }
             }
             else {
-                if ($game->teams[1]->score > $game->teams[0]->score) {
+                if ($game->teams[1]->score > $game->teams[0]->score) 
                     $this->W++;
-                    array_push($this->AllGames, 1);
-                }
-                else {
+                else 
                     $this->L++;
-                    array_push($this->AllGames, 0);
-                }
             }
+            
+            /*
+            $QuickGame = new QuickGame($teams, $team, $HomeTeam);
+            $QuickGame->start();
+            if ($QuickGame->outcome[1] > $QuickGame->outcome[0])
+                $this->W++;
+            else
+                $this->L++;
+             * 
+             */
         }
     }
 ?>

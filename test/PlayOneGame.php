@@ -1,5 +1,5 @@
 <?php
-    //require_once ("../DisplayErrors.php");
+    require_once ("../DisplayErrors.php");
 
     $team = 38;
     $year = 1982;
@@ -14,47 +14,43 @@
 
     GetLineup($team, $year, $season);
 
+    echo $W. "-" . $L . "<br>";
+    
     function GetLineup($team, $year, $season) {
         $gameNum = 0;
         // get the schedule
         require("../DBconn.php");
 
-        $sql = $conn->prepare("select * from ActualSchedules where (AwayTeam = $team or HomeTeam = $team) and year = $year limit 1");
+        $sql = $conn->prepare("select * from ActualSchedules where (AwayTeam = $team or HomeTeam = $team) and year = $year ");
         $sql->execute();
         foreach ($sql as $row => $cols) {
             $GetGameLineup = new GetGameLineup($team, $year, $season, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
             $GetGameLineup->start();
             //for ($i = 0; $i < $cols["games"]; $i++) {
             for ($i = 0; $i<1; $i++) {
-                PlayEachGame($GetGameLineup->teams, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
+                PlayEachGame($GetGameLineup->teams, $team, $year, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
                 $gameNum++;
             }
         }
         $conn = null;
     }
 
-    function PlayEachGame($teams, $AwayTeam, $HomeTeam, $gameNum) {
-        $game = new game($teams, $team, $year, $season, $AwayTeam, $HomeTeam, $gameNum);
+    function PlayEachGame($teams, $team, $year, $AwayTeam, $HomeTeam, $gameNum) {
+        global $W, $L;
+        
+        $game = new game($teams, $team, $year, $AwayTeam, $HomeTeam);
         $game->start();
         if ($team == $AwayTeam) {
-            if ($game->teams[0]->score > $game->teams[1]->score) {
+            if ($game->teams[0]->score > $game->teams[1]->score)
                 $W++;
-                array_push($AllGames, 1);
-            }
-            else {
+            else 
                 $L++;
-                array_push($AllGames, 0);
-            }
         }
         else {
-            if ($game->teams[1]->score > $game->teams[0]->score) {
+            if ($game->teams[1]->score > $game->teams[0]->score) 
                 $W++;
-                array_push($AllGames, 1);
-            }
-            else {
+            else 
                 $L++;
-                array_push($AllGames, 0);
-            }
         }
     }
 ?>
