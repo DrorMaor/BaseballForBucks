@@ -86,7 +86,7 @@ function DisplayLineupResults(response) {
         table += "<strong>" + json[i].name + "</strong><br>AVG: " + json[i].AVG.replace('0.', '.') + ", " + json[i].HR + " HR";
         table += "</td>";
         table += "<td style='width:50px;'>";
-        table += "<a target='_blank' href='https://www.google.com/search?q=" + json[i].name +"'><img alt='Research this player' src='images/g.png'></a>"
+        table += "<a target='_blank' href='https://www.google.com/search?q=" + json[i].name +"'><img title='Research this player' src='images/g.png'></a>"
         table += "</td>";
         table += "</tr>";
         table += "</table>";

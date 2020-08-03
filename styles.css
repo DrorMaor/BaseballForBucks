@@ -59,6 +59,7 @@ body {
   padding: 8px;
   font-size: 18px;
   color: #000c2b;
+  vertical-align: middle;
 }
 
 .instructions {
@@ -141,10 +142,6 @@ body {
     cursor: -webkit-grab;
     cursor: grab;
     font-size: 14px;
-    margin: auto;
-}
-
-#GoogleTeam {
     margin: auto;
 }
 
