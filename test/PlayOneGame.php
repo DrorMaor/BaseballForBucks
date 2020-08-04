@@ -13,8 +13,6 @@
     require_once("../game.php");
 
     GetLineup($team, $year, $season);
-
-    echo $W. "-" . $L . "<br>";
     
     function GetLineup($team, $year, $season) {
         $gameNum = 0;
@@ -26,8 +24,8 @@
         foreach ($sql as $row => $cols) {
             $GetGameLineup = new GetGameLineup($team, $year, $season, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
             $GetGameLineup->start();
-            //for ($i = 0; $i < $cols["games"]; $i++) {
-            for ($i = 0; $i<1; $i++) {
+            for ($i = 0; $i < $cols["games"]; $i++) {
+            //for ($i = 0; $i<5; $i++) {
                 PlayEachGame($GetGameLineup->teams, $team, $year, $cols["AwayTeam"], $cols["HomeTeam"], $gameNum);
                 $gameNum++;
             }
@@ -52,5 +50,8 @@
             else 
                 $L++;
         }
+        print_r($game->teams);
+        echo "<br>----$gameNum----<br>";
+        $game = null;
     }
 ?>

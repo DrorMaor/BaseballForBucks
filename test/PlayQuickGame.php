@@ -12,6 +12,8 @@
 
     GetLineup($team, $year, $season);
     
+    echo $W . "-" . $L. "<br>";
+    
     function GetLineup($team, $year, $season) {
         $gameNum = 0;
         // get the schedule
@@ -33,5 +35,10 @@
     function PlayQuickGame($teams, $team, $HomeTeam) {
         $QuickGame = new QuickGame($teams, $team, $HomeTeam);
         $QuickGame->start();
+        global $W, $L;
+        if ($QuickGame->outcome[0] > $QuickGame->outcome[1])
+            $W++;
+        else
+            $L++;
     }
 ?>

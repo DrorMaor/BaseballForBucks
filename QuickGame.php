@@ -5,12 +5,14 @@ class QuickGame {
     // to know if it's the home team (for HAWL stat below)
     private $team;  
     private $HomeTeam;
+    private $GameNum;
     public $outcome;
     
-    public function __construct($teams, $team, $HomeTeam) {
+    public function __construct($teams, $team, $HomeTeam, $GameNum) {
         $this->teams = $teams;
         $this->team = $team;
         $this->HomeTeam = $HomeTeam;
+        $this->GameNum = $GameNum;
         $this->outcome = array(0, 0);
     }
 
@@ -21,19 +23,13 @@ class QuickGame {
     function start() {
         $bti = 0;
         $pti = 0;
-        for ($t = 0; $t < 2; $t++) 
+        for ($t = 0; $t < 2; $t++)
         {
-            if ($t == 0)  {
-                $bti = 0;
-                $pti = 1;
-            }
-            else {
-                $bti = 1;
-                $pti = 0;
-            }
+            $bti = $t;
+            $pti = abs($t - 1);
             $BattingTeam = $this->teams[$bti];
             $PitchingTeam = $this->teams[$pti];
-            $PitcherIndex = floor( $this->GetRand() * 9);
+            $PitcherIndex = $this->GameNum % count($PitchingTeam->pitchers);
             $CurrPitcher = $PitchingTeam->pitchers[$PitcherIndex];
             
             // ERA3 is ERA adjusted to 3.0
@@ -41,8 +37,10 @@ class QuickGame {
             // and anything lower would make the batter weaker)
             $ERA3 = $CurrPitcher->ERA - 3.33;
             
+            $index = 0;
             foreach ($BattingTeam->batters as $batter)
             {
+                $index ++;
                 // GBOP = Getting Batter Out Percentage, we adjust the ERA3 based on the AVG
                 // so we have a fair chance at a hit/out, based on both pitcher & batter
                 $GBOP = $batter->AVG + ($ERA3 / 50);
@@ -55,10 +53,15 @@ class QuickGame {
                 else
                     $HAWL = $BattingTeam->AwayW / ($BattingTeam->AwayW + $BattingTeam->AwayL);
                 $GBOP += $HAWL - .500; 
-
+                
+                // lineup adjustment
+                $GBOP -= ($index - 9) * ($batter->AVG - 0.300);
+                // improve offensive chance based on extra base hits
+                $GBOP += ($batter->B2 + $batter->B3 + $batter->HR) / 1000;
+                
                 for ($ab = 0; $ab < 4; $ab++) 
                 {
-                    if ( $this->GetRand() < $GBOP) 
+                    if ($this->GetRand() < $GBOP) 
                         $this->outcome[$bti] ++;
                     else
                         $this->outcome[$pti] ++;

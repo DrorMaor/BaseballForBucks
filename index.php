@@ -1,31 +1,31 @@
 <html>
-	<head>
-		<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-		<script src="scripts.js"></script>
-		<link rel="stylesheet" href="styles.css">
-		<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
-		<link rel="icon" type="image/x-icon" href="favicon.ico?v=2"/>
-		<title>Baseball For Bucks</title>
-	</head>
-<body>
+    <head>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script src="scripts.js"></script>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+        <link rel="icon" type="image/x-icon" href="favicon.ico?v=2"/>
+        <title>Baseball For Bucks</title>
+    </head>
+    <body>
 	<div id="beta">BETA</div>
 
 	<div id="leftMenu" class="steps">
-		<img src="images/logo.png" id="logo"> <br>
-		<?php //include ("menu/about.php") ?>
+            <img src="images/logo.png" id="logo"> <br>
+            <?php //include ("menu/about.php") ?>
 	</div>
 
 	<div class="steps" id="Step1">
-		<div class="heading">
-			Step 1<br>
-			Choose Team and Year
-		</div>
-		<div id="divShowTeams">
-			<?php include("ShowTeams.php"); ?>
-		</div>
+            <div class="heading">
+                    Step 1<br>
+                    Choose Team and Year
+            </div>
+            <div id="divShowTeams">
+                    <?php include("ShowTeams.php"); ?>
+            </div>
 	</div>
 
 	<div class="steps" id="Step2">
@@ -63,6 +63,5 @@
 		<br> <br>
 		<div id="SimulatedSeasonResults" class="SeasonMessage"></div>
 	</div>
-
-</body>
+    </body>
 </html>
