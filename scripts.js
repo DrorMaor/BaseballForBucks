@@ -1,7 +1,11 @@
 var team = 0;
 var year = 0;
+var _city = "";
+var _name = "";
 
 function SelectTeamYear(teamID, city, name) {
+    _city = city;
+    _name = name;
     TeamYearSplit(teamID);
     ToggleRowBGcolor();
     $("#tr_" + team).css("background-color","#4885e8");
@@ -20,16 +24,37 @@ function TeamYearSplit(teamID) {
 }
 
 $( function() {
-    $( document ).tooltip();
+    $(document).tooltip();
     $("#ulLineup").sortable();
     $("#ulLineup").disableSelection();
     ToggleRowBGcolor();
+
+    for (i = 0; i < 5; i++)
+        $("#RunSchedule ul").append("<li class='AddedLineup_before' id='AddedLineup_" + i + "'>&nbsp;</li>");
 } );
 
 function ToggleRowBGcolor () {
     $(".tr:even").css("background-color", "#e1e6fc");
     $(".tr:odd").css("background-color", "#cfd8ff");
     $(".tr").css("font-weight", "normal");
+}
+
+function AddLineup() {
+    var table = "<table>";
+    table += "<tr>";
+    table += "<td style='width:200px; text-align:left;'>";
+    table += "<strong>" + _city + " " + _name + " " + year + "</strong>";
+    table += "</td>";
+    table += "<td style='width:50px;'>";
+    table += "<img class='tools' title='Remove this season' src='images/close.png' onclick='RemoveLineup();'>";
+    table += "</td>";
+    table += "</tr>";
+    table += "</table>";
+    $("#RunSchedule ul").prepend("<li class='AddedLineup_after' id='lineup_" + (5 - $('.AddedLineup_after').length) + ">"  + table + "</li> ");
+
+    $('#RunSchedule li:last-child').remove();
+    if ($('.AddedLineup_after').length == 5)
+        $("#RightArrow").prop("onclick", false).css('cursor', 'not-allowed');
 }
 
 function CreateLineup(computer) {
@@ -40,8 +65,7 @@ function CreateLineup(computer) {
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
-            $("#ActualSeasonSummary").show();
-            $("#ActualSeasonSummary").html(response);
+            $("#ActualSeasonSummary").html(response).show();
         }
     });
 
@@ -53,8 +77,7 @@ function CreateLineup(computer) {
         dataType: 'text',
         success: function(response) {
             DisplayLineupResults(response);
-            $("#SimulatedSeasonResults").hide();
-            $("#SimulatedSeasonResults").html("");
+            $("#SimulatedSeasonResults").hide().html("");
         }
     });
 }
@@ -104,10 +127,9 @@ function UserLineup() {
 }
 
 function DisplayScheduleResults(response) {
-    //var json = JSON.parse(response);
-    //var s = "the " + json.city + " " + json.name + " went " + json.W + "-" + json.L + " in " + json.year;
-    $("#SimulatedSeasonResults").text(response);
-    $("#SimulatedSeasonResults").show();
+    var json = JSON.parse(response);
+    var msg = "With your lineup, the " + _city + " " + _name + " would have gone " + json.W + "-" + json.L + " in " + json.year ;
+    $("#SimulatedSeasonResults").text(msg).show();
 
 
     /*

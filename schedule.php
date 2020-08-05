@@ -2,15 +2,18 @@
 
     class schedule {
         private $team;
-        private $year;
+        public $year;
         private $season;
         public $W = 0;
         public $L = 0;
+        public $TeamName;  // for response back to JS msg
 
-        public function __construct($team, $year, $season) {
+        public function __construct($team, $year, $season, $TeamName) {
             $this->team = $team;
             $this->year = $year;
             $this->season = $season;
+            $this->$TeamName = $TeamName;
+
             require_once("GetGameLineup.php");
             require_once("QuickGame.php");
         }
@@ -50,9 +53,9 @@
                     $this->L++;
             }
             else {
-                if ($game->teams[1]->score > $game->teams[0]->score) 
+                if ($game->teams[1]->score > $game->teams[0]->score)
                     $this->W++;
-                else 
+                else
                     $this->L++;
             }
             */

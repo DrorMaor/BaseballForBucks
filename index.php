@@ -43,6 +43,8 @@
 			<a id="GoogleTeam" target="_blank" class="tools" title="Research this team on Google"><img src="images/google.png"></a>
 			&nbsp;
 			<a class="tools" onclick="CreateLineup(1);" title="Let the computer generate a great lineup"><img src="images/computer.png"></a>
+            &nbsp;
+            <a class="tools" id="RightArrow" onclick="AddLineup();" title="Add this lineup to your seasons"><img src="images/RightArrow.png"></a>
 		</div>
 		<ul id='ulLineup'></ul>
 	</div>
@@ -57,6 +59,7 @@
 		</div>
 		<div id="RunSchedule">
 			<div style="height:100px;">&nbsp;</div>
+            <ul id='ulSeasons'></ul>
 			<button id="PlayBall" onclick="RunSchedule();">Play Ball !</button>
 			<img id="SpinBall" src="images/ball.png">
 		</div>

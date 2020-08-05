@@ -21,6 +21,9 @@ class game
     private $HomeTeam;
     private $GameOver;
 
+    private $randoms = array();
+    private $RandIndex;
+
     public function __construct($teams, $team, $year, $AwayTeam, $HomeTeam) {
         $this->teams = $teams;   // this will be both teams' lineups
         $this->team = $team;
@@ -33,8 +36,6 @@ class game
         $this->inning = new inning();
         $this->bti = 0;
         $this->pti = 1;
-        $this->MaxErrors = floor($this->GetRand()*6);
-        $this->ErrorCount = 0;
         $this->InningFrame = -0.5;
 
         // reset incrementing values
@@ -46,6 +47,13 @@ class game
         }
         $this->ErrorCount = 0;
         $this->outs = 0;
+
+        for ($i = 0; $i < 27; $i++)
+            array_push($this->randoms, rand (0, 999) / 1000);
+        $this->RandIndex = 0;
+
+        $this->ErrorCount = 0;
+        $this->MaxErrors = floor($this->randoms[0] * 6);
     }
 
     public function __destruct() {
@@ -61,10 +69,6 @@ class game
         $this->MaxErrors = null;
         $this->ErrorCount = null;
         $this->InningFrame = null;
-    }
-
-    function GetRand() {
-        return rand (0, 999) / 1000;
     }
 
     function start() {
@@ -135,7 +139,8 @@ class game
                 $HAWL = $BattingTeam->AwayW / ($BattingTeam->AwayW + $BattingTeam->AwayL);
             $GBOP += $HAWL - .500;
 
-            if ($this->GetRand() < $GBOP)
+            $this->RandIndex++;
+            if ($this->randoms[$this->RandIndex % count($this->randoms)] < $GBOP)
             {
                 // he's on base
 
@@ -145,7 +150,8 @@ class game
                 $HR = $CurrBtr->HR / $CurrBtr->H;
 
                 // determine which hit type (DoHit param is # of bases in hit)
-                $r = $this->GetRand();
+                $this->RandIndex++;
+                $r = $this->randoms[$this->RandIndex % count($this->randoms)];
                 if ($r < $HR)
                     $this->DoHit(4);
                 elseif ($r >= $HR && $r < ($HR + $B3) )
@@ -171,7 +177,6 @@ class game
             $this->GameOver();
         else
         {
-            /*
             // determine whether to end the game, or start another inning
             if ($this->InningFrame == 8.5 && $this->teams[1]->score > $this->teams[0]->score)
                // bottom of the 9th, home team ahead
@@ -182,11 +187,6 @@ class game
             else
                // 1-8 innings, or any other extra inning
                $this->StartInning();
-            */
-            if ($this->InningFrame >= 9) 
-                $this->GameOver();
-            else
-                $this->StartInning();
         }
     }
 
@@ -196,7 +196,8 @@ class game
         if ($this->ErrorCount < $this->MaxErrors) {
             // try throwing an error
             // (this is based on 80 atbats per game: 27 min per team, plus average 3 walks and 10 hits)
-            if ($this->GetRand() < ($this->MaxErrors / 80)) {
+            $this->RandIndex++;
+            if ($this->randoms[$this->RandIndex % count($this->randoms)] < ($this->MaxErrors / 80)) {
                 $error = true;
                 $this->ErrorCount++;
                 $this->AdvanceRunners(-2, -1);
@@ -209,7 +210,10 @@ class game
 
     function DoHit($bases) {
         // most base hits are out of the infield, so we assume them here
-        $outfield = floor($this->GetRand()*3) + 7;  // left, center, or right field (nfk"m for runner scoring from second)
+        $this->RandIndex++;
+        // left, center, or right field (nfk"m for runner scoring from second)
+        $outfield = floor($this->randoms[$this->RandIndex % count($this->randoms)] *3) + 7;
+
         $this->AdvanceRunners($bases, $outfield);
         $this->AdvanceLineup();
         $this->DoAtBat();
@@ -452,7 +456,8 @@ class game
 
     function DoOut()
     {
-        $r = $this->GetRand();
+        $this->RandIndex++;
+        $r = $this->randoms[$this->RandIndex % count($this->randoms)] ;
         $pos = 0;
         // much less likelihood that the pitcher or catcher will do the putout, so we give them a smaller probabililty
         if ($r < 0.0625)
@@ -482,7 +487,8 @@ class game
             // 2) not a catcher (rare to have a catcher start a DP)
             // 3) when function TryDoublePlay returns true it only means that it's possible for a DP,
             //    but still there's a 10% chance it won't be turned
-            if ($this->inning->outs < 2 && $pos != 2 && $this->TryDoublePlay($pos) && $this->GetRand() < 0.9)
+            $this->RandIndex++;
+            if ($this->inning->outs < 2 && $pos != 2 && $this->TryDoublePlay($pos) && $this->randoms[$this->RandIndex % count($this->randoms)] < 0.9)
                 $this->inning->outs++; // this will only be the EXTRA out
         }
 

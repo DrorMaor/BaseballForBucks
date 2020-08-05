@@ -1,5 +1,5 @@
 <?php
-    require_once ("../DisplayErrors.php");
+    //require_once ("../DisplayErrors.php");
 
     $team = 38;
     $year = 1982;
@@ -13,7 +13,7 @@
     require_once("../game.php");
 
     GetLineup($team, $year, $season);
-    
+
     function GetLineup($team, $year, $season) {
         $gameNum = 0;
         // get the schedule
@@ -35,23 +35,23 @@
 
     function PlayEachGame($teams, $team, $year, $AwayTeam, $HomeTeam, $gameNum) {
         global $W, $L;
-        
+
         $game = new game($teams, $team, $year, $AwayTeam, $HomeTeam);
         $game->start();
         if ($team == $AwayTeam) {
             if ($game->teams[0]->score > $game->teams[1]->score)
                 $W++;
-            else 
+            else
                 $L++;
         }
         else {
-            if ($game->teams[1]->score > $game->teams[0]->score) 
+            if ($game->teams[1]->score > $game->teams[0]->score)
                 $W++;
-            else 
+            else
                 $L++;
         }
-        print_r($game->teams);
-        echo "<br>----$gameNum----<br>";
+        //print_r($game->teams);
+        echo $gameNum . ") [" . $game->InningFrame . "] " . $game->teams[0]->score."-".$game->teams[1]->score . "<br>";
         $game = null;
     }
 ?>

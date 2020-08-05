@@ -8,16 +8,14 @@
     $conn = null;
 
     require_once("schedule.php");
-    $schedule = new schedule($team, $year, $season);
+    $schedule = new schedule($team, $year, $season, $TeamName);
     $schedule->start();
-    $results .= "In the simulated season with your lineup, they went " . $schedule->W . "-" . $schedule->L. ".";
-    //echo json_encode($cols);
-    echo $results;
+    echo json_encode($schedule);
 
     function SaveUserLineup($conn, $team, $year, $lineup) {
         // first, insert new season
         $lineup = substr($lineup, 0, -1);
-        $sql = $conn->prepare("insert into SeasonsPlayed (team, year) values ($team, $year); ");
+        $sql = $conn->prepare("insert into SeasonsPlayed (team, year) values ($team, $year) ");
         $sql->execute();
         $season = $conn->lastInsertId();
         // now, instert the lineup
