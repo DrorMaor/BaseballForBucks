@@ -19,14 +19,6 @@ body {
     width: 19vw;
 }
 
-#logo {
-    padding: 10px;
-    margin: 10px;
-    position: absolute;
-    left: 5;
-    top: 5;
-}
-
 #beta {
     background-color: red;
     color: white;
@@ -112,12 +104,39 @@ body {
     text-align: center;
 }
 
+#logo {
+    position: relative;
+    display: block;
+    margin: auto;
+}
+
+#headFF {
+    text-shadow: 2px 2px gray;
+    font-size: 30px;
+    color: #000c2b;
+    margin-bottom: 10px;
+}
+
+#FeaturedFranchise {
+    text-align: center;
+    padding: 14px;
+    margin: 14px;
+    position: relative;
+    font-size:24px;
+    font-weight:bold;
+    border: 2px solid #000c2b;
+    border-radius: 5px;
+    color: #000c2b;
+}
+
 .AddedLineup_before {
     padding: 10px;
     width: 250px;
+    background-color: #ffffff;
     list-style-type: none;
     border: 1px solid #b5cff7;
     border-radius: 5px;
+    font-size: 14px;
     margin: auto;
 }
 

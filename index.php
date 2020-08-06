@@ -14,18 +14,21 @@
 	<div id="beta">BETA</div>
 
 	<div id="leftMenu" class="steps">
-            <img src="images/logo.png" id="logo"> <br>
-            <?php //include ("menu/about.php") ?>
+        <div class="heading" style="height:0px;">&nbsp;</div>
+        <img src="images/logo.png" id="logo">
+        <br> <br>
+        <?php //include ("menu/about.php") ?>
+        <div id="FeaturedFranchise"></div>
 	</div>
 
 	<div class="steps" id="Step1">
-            <div class="heading">
-                    Step 1<br>
-                    Choose Team and Year
-            </div>
-            <div id="divShowTeams">
-                    <?php include("ShowTeams.php"); ?>
-            </div>
+        <div class="heading">
+            Step 1<br>
+            Choose Team and Year
+        </div>
+        <div id="divShowTeams">
+            <?php include("ShowTeams.php"); ?>
+        </div>
 	</div>
 
 	<div class="steps" id="Step2">
