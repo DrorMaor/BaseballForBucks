@@ -37,9 +37,11 @@
 			Arrange the Lineup
 		</div>
 		<div id="Step2_instructions" class="instructions">
-			After you select the team and year in Step 1, you will arrange the lineup here by dragging the players into position.
-			<br>
-			You can easily research the team or any player by clicking the Google icon(s).
+            After selecting the team and year in Step 1, you can arrange the lineup here by dragging the players into position (or having the computer generate a great lineup for you).
+            <br>
+            You can research the team or any player by clicking the Google icon(s).
+            <br>
+            Then, click the blue right arrow to add this lineup to your seasons.
 		</div>
 		<div id="ActualSeasonSummary" class="SeasonMessage"></div>
 		<div id="divTools">
@@ -55,15 +57,18 @@
 	<div class="steps" id="Step3">
 		<div class="heading">
 			Step 3</br>
-			Simulate the Season
+			Simulate the Seasons
 		</div>
 		<div id="Step3_instructions" class="instructions">
-			Once you finalized your lineup, click "Play Ball", and the computer will simulate the entire season of the team you managed, against their actual opponents from that year.
-		</div>
+            Once you have chosen five seasons, click "Play Ball", and the computer will simulate those seasons, against their actual opponents from that year.
+            <br>
+            At the end of each week, the highest winning percentage will split the earnings!
+        </div>
 		<div id="RunSchedule">
-			<div style="height:100px;">&nbsp;</div>
+			<br>
             <ul id='ulSeasons'></ul>
-			<button id="PlayBall" onclick="RunSchedule();">Play Ball !</button>
+            <br>
+			<button id="btnPlayBall">Play Ball !</button>
 			<img id="SpinBall" src="images/ball.png">
 		</div>
 		<br> <br>

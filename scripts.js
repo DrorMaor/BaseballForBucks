@@ -15,7 +15,7 @@ function SelectTeamYear(teamID, city, name) {
     //$("#divTools").empty();
     $("#GoogleTeam").attr("href", "https://www.google.com/search?q=" + city + "+" + name + "+" + year);
     $("#divTools").show();
-    $("#PlayBall").show();
+    $("#btnPlayBall").show();
 }
 
 function TeamYearSplit(teamID) {
@@ -78,14 +78,17 @@ function AddLineup() {
     $("#RunSchedule ul").prepend("<li class='AddedLineup_after' id='LineupPos_" + LineupPos + "'>"  + table + "</li> ");
 
     $('#RunSchedule li:last-child').remove();
-    if ($('.AddedLineup_after').length == 5)
+    if ($('.AddedLineup_after').length == 5) {
         $("#RightArrow").attr("onClick", "").css('cursor', 'not-allowed');
+        $("#btnPlayBall").attr("onClick", "RunSchedule()").css('cursor', 'pointer').css("opacity", "1");
+    }
 }
 
 function RemoveLineup(LineupPos) {
     $("#LineupPos_" + LineupPos).remove();
     $("#RunSchedule ul").append("<li class='AddedLineup_before'>&nbsp;</li>");
     $("#RightArrow").attr("onClick", "AddLineup()").css('cursor', 'pointer');
+    $("#btnPlayBall").attr("onClick", "").css('cursor', 'not-allowed').css("opacity", ".5");
 }
 
 function CreateLineup(computer) {
@@ -115,7 +118,7 @@ function CreateLineup(computer) {
 
 function RunSchedule() {
     $("#SpinBall").show();
-    $("#PlayBall").hide();
+    $("#btnPlayBall").hide();
     $("#SimulatedSeasonResults").hide();
     $.ajax({
         type: "GET",
@@ -124,7 +127,7 @@ function RunSchedule() {
         dataType: 'text',
         success: function(response) {
             $("#SpinBall").hide();
-            $("#PlayBall").show();
+            $("#btnPlayBall").show();
             DisplayScheduleResults(response);
         }
     });

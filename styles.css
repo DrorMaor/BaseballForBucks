@@ -12,7 +12,7 @@ body {
     vertical-align: middle;
 }
 .tools:hover {
-    opacity: 75%;
+    opacity: .75;
 }
 
 #leftMenu {
@@ -82,7 +82,7 @@ body {
     padding: 5px;
 }
 
-#PlayBall {
+#btnPlayBall {
     background-color: lightskyblue;
     color: black;
     border: 2px solid #4CAF50;
@@ -91,12 +91,14 @@ body {
     font-weight: bold;
     padding: 15px;
     padding: 15px;
-    cursor: pointer;
+    cursor: not-allowed;
     display: none;
+    opacity: .5;
+    font-family: Poppins;
 }
 
-#PlayBall:hover {
-    opacity: 75%;
+#btnPlayBall:hover {
+    opacity: .5;
 }
 
 #RunSchedule {
@@ -167,7 +169,7 @@ body {
 
 #ulLineup {
     overflow-y: scroll;
-    height: 50vh;
+    height: 45vh;
     text-align: right;
     margin: auto;
 }

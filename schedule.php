@@ -6,13 +6,11 @@
         private $season;
         public $W = 0;
         public $L = 0;
-        public $TeamName;  // for response back to JS msg
 
-        public function __construct($team, $year, $season, $TeamName) {
+        public function __construct($team, $year, $season) {
             $this->team = $team;
             $this->year = $year;
             $this->season = $season;
-            $this->$TeamName = $TeamName;
 
             require_once("GetGameLineup.php");
             require_once("QuickGame.php");

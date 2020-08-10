@@ -1,5 +1,5 @@
 <?php
-    //include("DisplayErrors.php");
+    include("DisplayErrors.php");
 
     $team = $_GET["team"];
     $year = $_GET["year"];
@@ -8,7 +8,7 @@
     $conn = null;
 
     require_once("schedule.php");
-    $schedule = new schedule($team, $year, $season, $TeamName);
+    $schedule = new schedule($team, $year, $season);
     $schedule->start();
     echo json_encode($schedule);
 

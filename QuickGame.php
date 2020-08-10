@@ -20,7 +20,7 @@ class QuickGame {
         return rand (0, 999) / 1000;
     }
 
-    function start() {
+    function start() {        
         $bti = 0;
         $pti = 0;
         for ($t = 0; $t < 2; $t++)
