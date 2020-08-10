@@ -27,7 +27,7 @@
             Choose Team and Year
         </div>
         <div id="divShowTeams">
-            <?php include("ShowTeams.php"); ?>
+            <?php include("php/ShowTeams.php"); ?>
         </div>
 	</div>
 
@@ -44,7 +44,7 @@
             Then, click the blue right arrow to add this lineup to your seasons.
 		</div>
 		<div id="ActualSeasonSummary" class="SeasonMessage"></div>
-		<div id="divTools">
+		<div id="divTools" class="tools">
 			<a id="GoogleTeam" target="_blank" class="tools" title="Research this team on Google"><img src="images/google.png"></a>
 			&nbsp;
 			<a class="tools" onclick="CreateLineup(1);" title="Let the computer generate a great lineup"><img src="images/computer.png"></a>

@@ -8,9 +8,6 @@
     $rows = array();
 
     foreach($sql as $row => $cols)
-        $summary = "The " . $cols['city'] . " " . $cols['name'] . ' went ' . $cols['W'] . "-" . $cols["L"] . " in " .$year;
+        echo json_encode($cols);
     $conn = null;
-
-    //echo json_encode($rows);
-    echo $summary;
 ?>

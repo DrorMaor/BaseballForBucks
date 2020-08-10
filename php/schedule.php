@@ -2,7 +2,7 @@
 
     class schedule {
         private $team;
-        public $year;
+        private $year;
         private $season;
         public $W = 0;
         public $L = 0;

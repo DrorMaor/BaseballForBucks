@@ -1,16 +1,23 @@
 <?php
-    include("DisplayErrors.php");
+    //include("DisplayErrors.php");
 
-    $team = $_GET["team"];
-    $year = $_GET["year"];
+    $final->W = 0;
+    $final->L = 0;
+    $teams = explode(",", $_GET["teams"]);
+    $years = explode(",", $_GET["years"]);
+    $lineups = explode(",", $_GET["lineups"]);
+
     require("DBconn.php");
-    $season = SaveUserLineup($conn, $team, $year, $_GET["lineup"]);
+    require("schedule.php");
+    for ($i=0; $i<5; $i++) {
+        $season = SaveUserLineup($conn, $teams[$i], $years[$i], $lineups[$i]);
+        $schedule = new schedule($teams[$i], $years[$i], $season);
+        $schedule->start();
+        $final->W += $schedule->W;
+        $final->L += $schedule->L;
+    }
     $conn = null;
-
-    require_once("schedule.php");
-    $schedule = new schedule($team, $year, $season);
-    $schedule->start();
-    echo json_encode($schedule);
+    echo json_encode($final);
 
     function SaveUserLineup($conn, $team, $year, $lineup) {
         // first, insert new season

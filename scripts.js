@@ -2,6 +2,7 @@ var team = 0;
 var year = 0;
 var _city = "";
 var _name = "";
+var TeamSeasonSummary = "";
 var LineupPos = 0;
 
 function SelectTeamYear(teamID, city, name) {
@@ -42,7 +43,7 @@ function FeaturedFranchise () {
     // show the default (random) team
     $.ajax({
         type: "GET",
-        url: "FeaturedFranchise.php?team=" + team + "&year=" + year,
+        url: "php/FeaturedFranchise.php?team=" + team + "&year=" + year,
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
@@ -75,7 +76,13 @@ function AddLineup() {
     table += "</td>";
     table += "</tr>";
     table += "</table>";
-    $("#RunSchedule ul").prepend("<li class='AddedLineup_after' id='LineupPos_" + LineupPos + "'>"  + table + "</li> ");
+
+    // add the lineup to this season
+    var lineup = "";
+    $(".lineup").each(function() {
+        lineup += $(this).attr('id') + "|";
+    });
+    $("#RunSchedule ul").prepend("<li class='AddedLineup_after' id='LineupPos_" + LineupPos + "' team='" + team + "' year='" + year + "' W='" + TeamSeasonSummary.W + "' L='" + TeamSeasonSummary.L + "' lineup='" + lineup + "'>"  + table + "</li> ");
 
     $('#RunSchedule li:last-child').remove();
     if ($('.AddedLineup_after').length == 5) {
@@ -95,18 +102,20 @@ function CreateLineup(computer) {
     // show actual season's summary
     $.ajax({
         type: "GET",
-        url: "TeamSeasonSummary.php?team=" + team + "&year=" + year,
+        url: "php/TeamSeasonSummary.php?team=" + team + "&year=" + year,
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
-            $("#ActualSeasonSummary").html(response).show();
+            TeamSeasonSummary = JSON.parse(response);
+            var msg = "The " + TeamSeasonSummary.city + " " + TeamSeasonSummary.name + " went " + TeamSeasonSummary.W + "-" + TeamSeasonSummary.L + " in " + TeamSeasonSummary.year;
+            $("#ActualSeasonSummary").html(msg).show();
         }
     });
 
     // show the actual lineup
     $.ajax({
         type: "GET",
-        url: "GetLineup.php?team=" + team + "&year=" + year + "&computer=" + computer,
+        url: "php/GetLineup.php?team=" + team + "&year=" + year + "&computer=" + computer,
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
@@ -120,9 +129,19 @@ function RunSchedule() {
     $("#SpinBall").show();
     $("#btnPlayBall").hide();
     $("#SimulatedSeasonResults").hide();
+    // get all data to PHP file
+    var teams = [];
+    var years = [];
+    var lineups = [];
+    $(".AddedLineup_after").each(function() {
+        teams.push($(this).attr('team'));
+        years.push($(this).attr('year'));
+        lineups.push($(this).attr('lineup'));
+    });
+    var url = "php/RunSchedule.php?teams=" + teams + "&years=" + years + "&lineups=" + lineups;
     $.ajax({
         type: "GET",
-        url: "RunSchedule.php?team=" + team + "&year=" + year + "&lineup=" + UserLineup(),
+        url: url,
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
@@ -152,18 +171,17 @@ function DisplayLineupResults(response) {
 
 }
 
-function UserLineup() {
-    var lineup = "";
-    $("#ulLineup li").each(function(idx, li) {
-        lineup += $(li).attr('id') + "|";
-    });
-    return lineup;
-}
-
 function DisplayScheduleResults(response) {
     var json = JSON.parse(response);
-    var msg = "With your lineup, the " + _city + " " + _name + " would have gone " + json.W + "-" + json.L + " in " + json.year ;
-    $("#SimulatedSeasonResults").text(msg).show();
+    var W = 0;
+    var L = 0;
+    $(".AddedLineup_after").each(function() {
+        W += $(this).attr('W');
+        L += $(this).attr('L');
+    });
+    var msg = "The teams you selected had an average winning percentage of " + (parseInt(W) / (parseInt(W) + parseInt(L)) * 100).toFixed(0) + "%. <br>";
+    msg += "With your lineups, they would have won " + (json.W / (json.W + json.L) * 100).toFixed(0) + "% of the time.";
+    $("#SimulatedSeasonResults").html(msg).show();
 
 
     /*
