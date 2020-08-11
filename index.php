@@ -1,7 +1,10 @@
 <?php
     if (parse_url($_SERVER['REQUEST_URI'])["query"] != "")
         die();
+    else
+        include_once("php/traffic.php");
 ?>
+
 <html>
     <head>
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
