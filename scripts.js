@@ -176,11 +176,11 @@ function DisplayScheduleResults(response) {
     var W = 0;
     var L = 0;
     $(".AddedLineup_after").each(function() {
-        W += $(this).attr('W');
-        L += $(this).attr('L');
+        W += parseInt($(this).attr('W'));
+        L += parseInt($(this).attr('L'));
     });
-    var msg = "The teams you selected had an average winning percentage of " + (parseInt(W) / (parseInt(W) + parseInt(L)) * 100).toFixed(0) + "%. <br>";
-    msg += "With your lineups, they would have won " + (json.W / (json.W + json.L) * 100).toFixed(0) + "% of the time.";
+    var msg = "The teams you selected had an average record of " + (W / 5).toFixed(0) + "-" + (L / 5).toFixed(0) + "<br>";
+    msg += "With your lineups, their simulated average record was " + (json.W / 5).toFixed(0) + "-" + (json.L / 5).toFixed(0) + ".";
     $("#SimulatedSeasonResults").html(msg).show();
 
 
