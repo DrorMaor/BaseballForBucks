@@ -168,7 +168,6 @@ function DisplayLineupResults(response) {
         table += "</table>";
         $("#Step2 ul").append("<li class='lineup' id='" + json[i].id + "'>" + table + "</li> ");
     }
-
 }
 
 function DisplayScheduleResults(response) {
@@ -179,21 +178,9 @@ function DisplayScheduleResults(response) {
         W += parseInt($(this).attr('W'));
         L += parseInt($(this).attr('L'));
     });
-    var msg = "The teams you selected had an average record of " + (W / 5).toFixed(0) + "-" + (L / 5).toFixed(0) + "<br>";
-    msg += "With your lineups, their simulated average record was " + (json.W / 5).toFixed(0) + "-" + (json.L / 5).toFixed(0) + ".";
+    var AvgW = (W / 5).toFixed(0);
+    var AvgL = (L / 5).toFixed(0);
+    var msg = "The teams you selected had an average record of " + AvgW + "-" + AvgL + "<br>";
+    msg += "With your lineups, their simulated average record was " + (json.W / 5).toFixed(0) + "-" + ( (parseInt(AvgW) + parseInt(AvgL)) - (json.W / 5).toFixed(0) ) + ".";
     $("#SimulatedSeasonResults").html(msg).show();
-
-
-    /*
-    $totalActualGames = $cols["W"] + $cols["L"];
-    $totalSimulatedGames = $schedule->W + $schedule->L;
-    if ($totalActualGames != $totalSimulatedGames)
-        $schedule->L = $totalActualGames - $cols["W"];
-    $results = "The " . $cols["city"] . " " . $cols["name"] . " went " . $cols["W"] . "-" . $cols["L"] . " in the actual " . $year . " season. ";
-    $results .= "With your lineup, the computer simulated their season, and they went " . $schedule->W . "-" . $schedule->L . ".";
-    if ($schedule->W / $totalSimulatedGames > $cols["W"] / $totalActualGames) {
-        $pct = ($schedule->W / $totalSimulatedGames) - ($cols["W"] / $totalActualGames);
-        $results .= " Your lineup was " . number_format($pct * 100, 0) . "% better than the actual lineup !";
-    }
-    */
 }
