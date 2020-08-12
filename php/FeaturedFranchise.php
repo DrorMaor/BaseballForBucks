@@ -10,4 +10,5 @@
     $sql->execute();
     foreach($sql as $row => $cols)
         echo json_encode($cols);
+    $conn = null;
 ?>
