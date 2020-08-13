@@ -19,7 +19,6 @@ class GetGameLineup {
 
         require_once ("DataClasses/team.php");
         require_once ("DataClasses/batter.php");
-        require_once ("DataClasses/pitcher.php");
     }
 
     function start() {
@@ -39,7 +38,6 @@ class GetGameLineup {
         $team = new team();
         $team = $this->GetTeamData($conn, $AwayHomeTeam, $this->year);
         $team->batters = $this->GetBatters($conn, $AwayHomeTeam, $this->year, $this->season);
-        $team->pitchers = $this->GetPitchers($conn, $AwayHomeTeam, $this->year);
         return $team;
     }
 
@@ -60,12 +58,12 @@ class GetGameLineup {
         return $team;
     }
 
-    function GetBatters($conn, $team, $year, $season) {
-        $Team = new Team();
-        if ($season != -1)
+    function GetBatters($conn, $AwayHomeTeam, $year, $season) {
+        $team = new team();
+        if ($season != -1 && $team == $AwayHomeTeam)
             $sql = $conn->prepare("select * from ActualBatters where id in (select batter from SeasonsLineup where season = $season)");
         else
-            $sql = $conn->prepare("select * from ActualBatters where team = $team and year = $year;");
+            $sql = $conn->prepare("select * from ActualBatters where team = $AwayHomeTeam and year = $year");
         $sql->execute();
         foreach($sql as $row => $cols) {
             $b = new batter();
@@ -75,54 +73,9 @@ class GetGameLineup {
             $b->B2 = $cols["B2"];
             $b->B3 = $cols["B3"];
             $b->HR = $cols["HR"];
-            array_push($Team->batters, $b);
+            array_push($team->batters, $b);
         }
-        return $Team->batters;
-    }
-
-    function GetPitchers($conn, $team, $year) {
-        $id = 0;
-        $Team = new Team();
-        $sql = $conn->prepare("select * from ActualPitchers where team = $team and year = $year;");
-        $sql->execute();
-        foreach($sql as $row => $cols) {
-            $p = new pitcher();
-            $p->id = $id;  // used to determine who's this game's starter
-            $p->name = $cols["name"];
-            $p->ERA = $cols["ERA"];
-            $p->AvgInnPerGame = $cols["AvgInnPerGame"];
-            $p->type = $cols['type'];  // (R/S) for Reliever or Starter
-            array_push($Team->pitchers, $p);
-            $id++;
-        }
-
-        // ----------------------------------------- //
-        // select the starter, based on the rotation //
-        // ----------------------------------------- //
-
-        // put all starters in temp array
-        $starters = array();
-        foreach ($Team->pitchers as $pitcher) {
-            if ($pitcher->type == "S")
-                array_push($starters, $pitcher->id);
-        }
-
-        // determine today's starter
-        if (count($starters) > 0)
-            $starterID = $starters[$this->GameNum % count($starters)];
-        else
-            $starterID = 0;
-
-        // here we remove all other starters besides this game's starter
-        $counter = 0;
-        foreach ($Team->pitchers as $pitcher) {
-            if ($pitcher->type == "S" && $pitcher->id != $starterID)
-                unset($Team->pitchers[$counter]);
-            $counter++;
-        }
-        $Team->pitchers = array_values($Team->pitchers);
-
-        return $Team->pitchers;
+        return $team->batters;
     }
 }
 ?>

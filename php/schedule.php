@@ -13,7 +13,7 @@
             $this->season = $season;
 
             require_once("GetGameLineup.php");
-            require_once("QuickGame.php");
+            require_once("game.php");
         }
 
         function start() {
@@ -24,7 +24,7 @@
             $GameNum = 0;
             // get the schedule
             require("DBconn.php");
-            $sql = $conn->prepare("select * from ActualSchedules where (AwayTeam = $this->team or HomeTeam = $this->team) and year = $this->year;");
+            $sql = $conn->prepare("select * from ActualSchedules where (AwayTeam = $this->team or HomeTeam = $this->team) and year = $this->year");
             $sql->execute();
             foreach ($sql as $row => $cols) {
                 $GetGameLineup = new GetGameLineup($this->team, $this->year, $this->season, $cols["AwayTeam"], $cols["HomeTeam"], $GameNum);
@@ -39,9 +39,6 @@
         }
 
         function PlayEachGame($teams, $AwayTeam, $HomeTeam, $GameNum) {
-           // print_r($teams);
-            //echo "<br>----------<br>";
-            /*
             $game = new game($teams, $this->team, $this->year, $this->season, $AwayTeam, $HomeTeam);
             $game->start();
             if ($this->team == $AwayTeam) {
@@ -56,13 +53,6 @@
                 else
                     $this->L++;
             }
-            */
-            $QuickGame = new QuickGame($teams, $this->team, $HomeTeam, $GameNum);
-            $QuickGame->start();
-            if ($QuickGame->outcome[0] > $QuickGame->outcome[1])
-                $this->W++;
-            else
-                $this->L++;
         }
     }
 ?>

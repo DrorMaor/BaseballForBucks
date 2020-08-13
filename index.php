@@ -58,16 +58,12 @@
             After selecting the team and year in Step 1, you can arrange the lineup here by dragging the players into position (or having the computer generate a great lineup for you).
             <br>
             You can research the team or any player by clicking the Google icon(s).
-            <br>
-            Then, click the blue right arrow to add this lineup to your seasons.
 		</div>
 		<div id="ActualSeasonSummary" class="SeasonMessage"></div>
 		<div id="divTools" class="tools">
 			<a id="GoogleTeam" target="_blank" class="tools" title="Research this team on Google"><img src="images/google.png"></a>
 			&nbsp;
 			<a class="tools" onclick="CreateLineup(1);" title="Let the computer generate a great lineup"><img src="images/computer.png"></a>
-            &nbsp;
-            <a class="tools" id="RightArrow" onclick="AddLineup();" title="Add this lineup to your seasons"><img src="images/RightArrow.png"></a>
 		</div>
 		<ul id='ulLineup'></ul>
 	</div>
@@ -75,18 +71,17 @@
 	<div class="steps" id="Step3">
 		<div class="heading">
 			Step 3</br>
-			Simulate the Seasons
+			Simulate the Season
 		</div>
 		<div id="Step3_instructions" class="instructions">
-            Once you have chosen five seasons, click "Play Ball", and the computer will simulate those seasons, against their actual opponents from that year.
+            Once you have chosen your lineup, click "Play Ball", and the computer will simulate the season against their actual opponents from that year.
             <br>
-            At the end of each week, the highest winning percentage will split the earnings!
+            At the end of each week, the highest winning percentage will split the pot!
         </div>
 		<div id="RunSchedule">
-			<br>
-            <ul id='ulSeasons'></ul>
             <br>
-			<button id="btnPlayBall">Play Ball !</button>
+			<button id="btnPlayBall" onclick="RunSchedule();">Play Ball !</button>
+            <br>
 			<img id="SpinBall" src="images/ball.png">
 		</div>
 		<br> <br>

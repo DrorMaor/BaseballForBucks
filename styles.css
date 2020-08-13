@@ -3,7 +3,6 @@ body {
 }
 
 #divTools {
-    display: none;
     text-align: center;
 }
 
@@ -151,9 +150,7 @@ body {
     font-weight: bold;
     padding: 15px;
     padding: 15px;
-    cursor: not-allowed;
-    display: none;
-    opacity: .5;
+    cursor:pointer;
     font-family: Poppins;
 }
 
@@ -191,28 +188,6 @@ body {
     color: #000c2b;
 }
 
-.AddedLineup_before {
-    padding: 10px;
-    width: 250px;
-    background-color: #ffffff;
-    list-style-type: none;
-    border: 1px solid #b5cff7;
-    border-radius: 5px;
-    font-size: 14px;
-    margin: auto;
-}
-
-.AddedLineup_after {
-    padding: 10px;
-    width: 250px;
-    background-color: #e8f0fc;
-    list-style-type: none;
-    border: 1px solid #b5cff7;
-    border-radius: 5px;
-    font-size: 14px;
-    margin: auto;
-}
-
 #GoogleTeam {
     margin: auto;
 }
@@ -229,7 +204,7 @@ body {
 
 #ulLineup {
     overflow-y: scroll;
-    height: 45vh;
+    height: 50vh;
     text-align: right;
     margin: auto;
 }

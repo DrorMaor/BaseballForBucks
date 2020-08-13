@@ -15,8 +15,6 @@ function SelectTeamYear(teamID, city, name) {
     CreateLineup(0);
     //$("#divTools").empty();
     $("#GoogleTeam").attr("href", "https://www.google.com/search?q=" + city + "+" + name + "+" + year);
-    $("#divTools").show();
-    $("#btnPlayBall").show();
 }
 
 function TeamYearSplit(teamID) {
@@ -25,17 +23,14 @@ function TeamYearSplit(teamID) {
     year = TeamYear[1];
 }
 
-$( function() {
+$(function() {
     $(document).tooltip();
     $("#ulLineup").sortable();
     $("#divAbout").draggable();
     $("#divContactUs").draggable();
     $("#ulLineup").disableSelection();
     ToggleRowBGcolor();
-
-    for (i = 0; i < 5; i++)
-        $("#RunSchedule ul").append("<li class='AddedLineup_before'>&nbsp;</li>");
-} );
+});
 
 $(window).load(function() {
     FeaturedFranchise();
@@ -83,40 +78,6 @@ function ToggleRowBGcolor () {
     $(".tr").css("font-weight", "normal");
 }
 
-function AddLineup() {
-    LineupPos++;
-    var table = "<table>";
-    table += "<tr>";
-    table += "<td style='width:220px;'>";
-    table += "<strong>" + _city + " " + _name + " " + year + "</strong>";
-    table += "</td>";
-    table += "<td style='width:20px;'>";
-    table += "<img class='tools' title='Remove this season' src='images/close.png' onclick='RemoveLineup(" + LineupPos + ");'>";
-    table += "</td>";
-    table += "</tr>";
-    table += "</table>";
-
-    // add the lineup to this season
-    var lineup = "";
-    $(".lineup").each(function() {
-        lineup += $(this).attr('id') + "|";
-    });
-    $("#RunSchedule ul").prepend("<li class='AddedLineup_after' id='LineupPos_" + LineupPos + "' team='" + team + "' year='" + year + "' W='" + TeamSeasonSummary.W + "' L='" + TeamSeasonSummary.L + "' lineup='" + lineup + "'>"  + table + "</li> ");
-
-    $('#RunSchedule li:last-child').remove();
-    if ($('.AddedLineup_after').length == 5) {
-        $("#RightArrow").attr("onClick", "").css('cursor', 'not-allowed');
-        $("#btnPlayBall").attr("onClick", "RunSchedule()").css('cursor', 'pointer').css("opacity", "1");
-    }
-}
-
-function RemoveLineup(LineupPos) {
-    $("#LineupPos_" + LineupPos).remove();
-    $("#RunSchedule ul").append("<li class='AddedLineup_before'>&nbsp;</li>");
-    $("#RightArrow").attr("onClick", "AddLineup()").css('cursor', 'pointer');
-    $("#btnPlayBall").attr("onClick", "").css('cursor', 'not-allowed').css("opacity", ".5");
-}
-
 function CreateLineup(computer) {
     // show actual season's summary
     $.ajax({
@@ -128,6 +89,7 @@ function CreateLineup(computer) {
             TeamSeasonSummary = JSON.parse(response);
             var msg = "The " + TeamSeasonSummary.city + " " + TeamSeasonSummary.name + " went " + TeamSeasonSummary.W + "-" + TeamSeasonSummary.L + " in " + TeamSeasonSummary.year;
             $("#ActualSeasonSummary").html(msg).show();
+            $("#btnPlayBall").show();
         }
     });
 
@@ -148,25 +110,20 @@ function RunSchedule() {
     $("#SpinBall").show();
     $("#btnPlayBall").hide();
     $("#SimulatedSeasonResults").hide();
-    // get all data to PHP file
-    var teams = [];
-    var years = [];
-    var lineups = [];
-    $(".AddedLineup_after").each(function() {
-        teams.push($(this).attr('team'));
-        years.push($(this).attr('year'));
-        lineups.push($(this).attr('lineup'));
-    });
 
+    var lineup = "";
+    $("#ulLineup li").each(function(idx, li) {
+        lineup += $(li).attr('id') + "|";
+    });
     $.ajax({
         type: "GET",
-        url: "php/RunSchedule.php?teams=" + teams + "&years=" + years + "&lineups=" + lineups,
+        url: "php/RunSchedule.php?team=" + team + "&year=" + year + "&lineup=" + lineup,
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
             $("#SpinBall").hide();
-            $("#btnPlayBall").show();
             DisplayScheduleResults(response);
+            $("#btnPlayBall").show();
         }
     });
 }
@@ -190,16 +147,12 @@ function DisplayLineupResults(response) {
 }
 
 function DisplayScheduleResults(response) {
-    var json = JSON.parse(response);
-    var W = 0;
-    var L = 0;
-    $(".AddedLineup_after").each(function() {
-        W += parseInt($(this).attr('W'));
-        L += parseInt($(this).attr('L'));
-    });
-    var AvgW = (W / 5).toFixed(0);
-    var AvgL = (L / 5).toFixed(0);
-    var msg = "The teams you selected had an average record of " + AvgW + "-" + AvgL + "<br>";
-    msg += "With your lineups, their simulated average record was " + (json.W / 5).toFixed(0) + "-" + ( (parseInt(AvgW) + parseInt(AvgL)) - (json.W / 5).toFixed(0) ) + ".";
-    $("#SimulatedSeasonResults").html(msg).show();
+    try {
+        var json = JSON.parse(response);
+        var msg = "With your lineup, the " + _name + " would have gone " + json.W + "-" + json.L + " in " + year;
+        $("#SimulatedSeasonResults").css("background-color", "#000c2b").html(msg).show();
+    }
+    catch(err) {
+        $("#SimulatedSeasonResults").css("background-color", "red").html("An error occurred. Please try again.").show();
+    }
 }

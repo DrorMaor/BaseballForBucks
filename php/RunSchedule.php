@@ -1,23 +1,19 @@
 <?php
-    //include("DisplayErrors.php");
+    include("DisplayErrors.php");
 
-    $final->W = 0;
-    $final->L = 0;
-    $teams = explode(",", $_GET["teams"]);
-    $years = explode(",", $_GET["years"]);
-    $lineups = explode(",", $_GET["lineups"]);
+    $team = $_GET["team"];
+    $year = $_GET["year"];
+    $lineup = $_GET["lineup"];
 
     require("DBconn.php");
     require("schedule.php");
-    for ($i=0; $i<5; $i++) {
-        $season = SaveUserLineup($conn, $teams[$i], $years[$i], $lineups[$i]);
-        $schedule = new schedule($teams[$i], $years[$i], $season);
-        $schedule->start();
-        $final->W += $schedule->W;
-        $final->L += $schedule->L;
-    }
+
+    $season = SaveUserLineup($conn, $team, $year, $lineup);
+    $schedule = new schedule($team, $year, $season);
+    $schedule->start();
+
     $conn = null;
-    echo json_encode($final);
+    echo json_encode($schedule);
 
     function SaveUserLineup($conn, $team, $year, $lineup) {
         // first, insert new season
@@ -30,7 +26,7 @@
         $players = explode("|", $lineup);
         foreach ($players as $player)
             $insert .= "($season, $player), ";
-        $insert = substr($insert, 0, -2) . ";";  // remove final comman
+        $insert = substr($insert, 0, -2) . ";";  // remove final comma
         $sql = $conn->prepare($insert);
         $sql->execute();
         return $season;
