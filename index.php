@@ -34,7 +34,8 @@
         <div class="heading" style="height:0px;">&nbsp;</div>
         <img src="images/logo.png" id="logo">
         <br> <br>
-        <?php //include ("menu/about.php") ?>
+        <?php include ("menu.html") ?>
+        <br> <br>
         <div id="FeaturedFranchise"></div>
 	</div>
 

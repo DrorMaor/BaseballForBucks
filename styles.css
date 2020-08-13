@@ -19,6 +19,66 @@ body {
     width: 19vw;
 }
 
+.menu {
+    display: inline-block;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 7px;
+    font-weight: bold;
+}
+
+#divAbout {
+    position: absolute;
+    margin: 5px;
+    padding: 5px;
+    width:50%;
+    top: 5%;
+    left: 5%;
+    background-color: #f7f9fc;
+    border: 1px solid #000c2b;
+    border-radius: 7px;
+    display: none;
+    z-index: 5;
+    cursor: move;
+    overflow-y: scroll;
+}
+
+.MenuDivs {
+    position: absolute;
+    margin: 10px;
+    padding: 10px;
+    top: 5%;
+    left: 5%;
+    background-color: #f7f9fc;
+    border: 2px solid #000c2b;
+    border-radius: 7px;
+    display: none;
+    cursor: move;
+    overflow-y: scroll;
+}
+
+#divContactUs {
+    width: 20%;
+    z-index: 10;
+}
+
+#divAbout {
+    width: 50%;
+    z-index: 5;
+}
+
+#ContactThanks {
+    display: none;
+    font-weight: bold;
+    color: blue;
+}
+
+.PopupClose {
+    position: relative;
+    float: right;
+    margin-bottom: 5px;
+}
+
 #beta {
     background-color: red;
     color: white;

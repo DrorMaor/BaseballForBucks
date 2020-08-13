@@ -28,6 +28,8 @@ function TeamYearSplit(teamID) {
 $( function() {
     $(document).tooltip();
     $("#ulLineup").sortable();
+    $("#divAbout").draggable();
+    $("#divContactUs").draggable();
     $("#ulLineup").disableSelection();
     ToggleRowBGcolor();
 
@@ -54,6 +56,23 @@ function FeaturedFranchise () {
             // now, auto-click that  year to bring up the lineup
             $("#TeamYear_" + json.id).val(json.id + "_" + json.year);
             SelectTeamYear(json.id, json.city, json.name);
+        }
+    });
+}
+
+function SendComments() {
+    $.ajax({
+        type: "GET",
+        url: "php/SendComments.php?contact=" + $("#txtContact").val() + "&comments=" + $("#txtComments").val(),
+        data: $(this).serialize(),
+        dataType: 'text',
+        success: function(response) {
+            $('#ContactThanks').show();
+            $('#divContactUs').fadeOut(5000).promise().done(function() {
+                $('#ContactThanks').hide();
+                $("#txtContact").val("");
+                $("#txtComments").val("");
+            });
         }
     });
 }
@@ -138,10 +157,10 @@ function RunSchedule() {
         years.push($(this).attr('year'));
         lineups.push($(this).attr('lineup'));
     });
-    var url = "php/RunSchedule.php?teams=" + teams + "&years=" + years + "&lineups=" + lineups;
+
     $.ajax({
         type: "GET",
-        url: url,
+        url: "php/RunSchedule.php?teams=" + teams + "&years=" + years + "&lineups=" + lineups,
         data: $(this).serialize(),
         dataType: 'text',
         success: function(response) {
