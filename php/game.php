@@ -60,10 +60,7 @@ class game
     }
 
     function start() {
-        echo "<br>---------<br><br>";
-        //return;
         $this->StartInning();
-        echo $this->teams[0]->score . "-" . $this->teams[1]->score . "<br>";
     }
 
     function StartInning() {
@@ -97,10 +94,8 @@ class game
             $HAWL = $BattingTeam->HomeW / ($BattingTeam->HomeW + $BattingTeam->HomeL);
         else
             $HAWL = $BattingTeam->AwayW / ($BattingTeam->AwayW + $BattingTeam->AwayL);
-        $AdjustedFactor = $CurrBtr->AVG + ($HAWL - .500);
-
-        echo $AdjustedFactor  . " ($HAWL)<br>";
-
+        $AdjustedFactor = $CurrBtr->AVG + (($HAWL - .500) / 10);
+        
         if ($this->GetRand() < $AdjustedFactor)
         {
             // he's on base
@@ -137,7 +132,7 @@ class game
            return;
         else
            // 1-8 innings, or any other extra inning
-           return;
+           $this->StartInning();
     }
 
     function TryError() {
