@@ -2,23 +2,9 @@
     <span class="menu tools" onclick="$('#divAbout').show();">How It Works</span>
     &nbsp;
     <span class="menu tools" onclick="$('#divContactUs').show();">Contact Us</span>
-</div>
-<div id="divContactUs" class="MenuDivs">
-    <div class="PopupClose">
-        <img src="images/close.png" class="tools" title="close" onclick="$('#divContactUs').hide();">
-    </div>
-    <strong>We'd love to hear from you</strong>
-    <br>
-    <div id="ContactThanks">Thanks for contacting us. We'll get back to you as soon as we're able to</div>
-    <br>
-    Comments <br>
-    <textarea id="txtComments" rows="8" cols="50"></textarea>
     <br><br>
-    Contact (email or WhatsApp) <br>
-    <input id="txtContact">
-    <span class="PopupClose">
-        <button id="btnSendComments" onclick="SendComments();" class="menu tools">Send</button>
-    </span>
+    <a href="https://twitter.com/BaseballBucks?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @TwitterDev</a>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </div>
 <div id="divAbout" class="MenuDivs">
     <div class="PopupClose"><img src="images/close.png" class="tools" title="close" onclick="$('#divAbout').hide();"></div>
@@ -47,4 +33,21 @@
         <br><br>
         <strong>GOOD LUCK !</strong>
     </p>
+</div>
+<div id="divContactUs" class="MenuDivs">
+    <div class="PopupClose">
+        <img src="images/close.png" class="tools" title="close" onclick="$('#divContactUs').hide();">
+    </div>
+    <strong>We'd love to hear from you</strong>
+    <br>
+    <div id="ContactThanks">Thanks for contacting us. We'll get back to you as soon as we're able to</div>
+    <br>
+    Comments <br>
+    <textarea id="txtComments" rows="8" cols="50"></textarea>
+    <br><br>
+    Contact (email or WhatsApp) <br>
+    <input id="txtContact">
+    <span class="PopupClose">
+        <button id="btnSendComments" onclick="SendComments();" class="menu tools">Send</button>
+    </span>
 </div>

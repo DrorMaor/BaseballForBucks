@@ -3,6 +3,9 @@
 class game
 {
     public $teams = array();
+    // we store text $highlights to display after the season
+    public $highlights = [];
+
     private $bti;  // Batting Team Index (too long to write full name each time)
     private $inning;
 
@@ -10,14 +13,17 @@ class game
     // randomly, an error will occur, until this # is reached
     private $MaxErrors;
     private $ErrorCount;
-
-    // this will increment by 1 with each top/bottom of inning, and will be a running total, but we can determine (for printing reasons) the actual inning # and top/bottom
-    public $InningFrame;
+    private $InningFrame;
 
     private $team;  // to know if it's the home or away team
     private $year;
     private $AwayTeam;
     private $HomeTeam;
+
+    private $ThisTeamIndex = 0;
+    private $ThatTeamIndex = 0;
+
+    private $homeruns = 0;  // used with highlights, if >=3 a game
 
     public function __construct($teams, $team, $year, $AwayTeam, $HomeTeam) {
         $this->teams = $teams;   // this will be both teams' lineups
@@ -32,47 +38,69 @@ class game
         $this->MaxErrors = floor($this->GetRand()*6);
         $this->ErrorCount = 0;
         $this->InningFrame = -0.5;
+        $this->homeruns = 0;
 
         // reset incrementing values
         for ($i = 0; $i < 2; $i++) {
             $this->teams[$i]->score = 0;
             $this->teams[$i]->batter = 0;
         }
-        $this->ErrorCount = 0;
-        $this->outs = 0;
     }
 
     public function __destruct() {
         $this->teams = null;
-        $this->team = 0;
-        $this->year = 0;
-        $this->AwayTeam = 0;
-        $this->HomeTeam = 0;
-        $this->bti = 0;
+        $this->team = -1;
+        $this->year = -1;
+        $this->AwayTeam = -1;
+        $this->HomeTeam = -1;
+        $this->bti = -1;
         $this->inning = null;
-        $this->MaxErrors = 0;
-        $this->ErrorCount = 0;
-        $this->InningFrame = 0;
+        $this->MaxErrors = -1;
+        $this->ErrorCount = -1;
+        $this->InningFrame = -1;
+        $this->homeruns = -1;
+        $this->ThisTeamIndex = -1;
+        $this->ThatTeamIndex = -1;
     }
 
     function GetRand() {
         return rand (0, 999) / 1000;
     }
 
+    function ThatTeamName() {
+        // used with highlights
+        return $this->teams[$this->ThatTeamIndex]->city . " " . $this->teams[$this->ThatTeamIndex]->name;
+    }
+
     function start() {
+        // used with highlights
+        $this->ThisTeamIndex = ($this->team == $this->AwayTeam) ? 0 : 1;
+        $this->ThatTeamIndex = ($this->team == $this->AwayTeam) ? 1 : 0;
         $this->StartInning();
+    }
+
+    function GameOver () {
+        if ($this->teams[$this->ThisTeamIndex]->score > 10)
+        {
+            $hl = $this->teams[$this->ThisTeamIndex]->score . " runs in a game against the " . $this->ThatTeamName();
+            array_push($this->highlights, $hl);
+        }
+        if ($this->homeruns >= 4) // homeruns only gets incremented if this team is the batting team
+        {
+            $hl = $this->homeruns . " homeruns in a game against the " . $this->ThatTeamName();
+            array_push($this->highlights, $hl);
+        }
+        return;
     }
 
     function StartInning() {
         $this->InningFrame += 0.5;
         // which team is batting
-        if (floor($this->InningFrame) == $this->InningFrame)
-            $this->bti = 0;
-        else
-            $this->bti = 1;
+        $this->bti = (floor($this->InningFrame) == $this->InningFrame) ? 0 : 1;
 
         $this->inning->runners = "000";
         $this->inning->outs = 0;
+        $this->inning->runs = 0;
 
         while (true) {
             $this->DoAtBat();
@@ -83,9 +111,14 @@ class game
         }
     }
 
+    function CurrentBatter () {
+        $BattingTeam = $this->teams[$this->bti];
+        return $BattingTeam->batters[$BattingTeam->batter];
+    }
+
     function DoAtBat() {
         $BattingTeam = $this->teams[$this->bti];
-        $CurrBtr = $BattingTeam->batters[$BattingTeam->batter];
+        $CurrBtr = $this->CurrentBatter();
 
         // Home/Away W/L %age
         // (we adjust the hitters chance of getting on base, based on the team's general home/away winning percentage)
@@ -95,7 +128,7 @@ class game
         else
             $HAWL = $BattingTeam->AwayW / ($BattingTeam->AwayW + $BattingTeam->AwayL);
         $AdjustedFactor = $CurrBtr->AVG + (($HAWL - .500) / 10);
-        
+
         if ($this->GetRand() < $AdjustedFactor)
         {
             // he's on base
@@ -107,8 +140,11 @@ class game
 
             // determine which hit type (DoHit param is # of bases in hit)
             $r = $this->GetRand();
-            if ($r < $HR)
+            if ($r < $HR) {
                 $this->DoHit(4);
+                if ($this->bti == $this->ThisTeamIndex)
+                    $this->homeruns ++;
+            }
             elseif ($r >= $HR && $r < ($HR + $B3) )
                 $this->DoHit(3);
             elseif ($r >= ($HR + $B3) && $r < ($HR + $B3 + $B2) )
@@ -126,13 +162,20 @@ class game
         // determine whether to end the game, or start another inning
         if ($this->InningFrame == 8.5 && $this->teams[1]->score > $this->teams[0]->score)
            // bottom of the 9th, home team ahead
-           return;
+           $this->GameOver();
         elseif ($this->InningFrame >= 9.0 && $this->bti == 1 && $this->teams[1]->score != $this->teams[0]->score)
            // extra innings, bottom of frame, any team ahead
-           return;
+           $this->GameOver();
         else
-           // 1-8 innings, or any other extra inning
-           $this->StartInning();
+        {
+            if ($this->inning->runs >= 6 && $this->bti == $this->ThisTeamIndex)
+            {
+                $hl = $this->inning->runs . " runs in one inning against the " . $this->ThatTeamName();
+                array_push($this->highlights, $hl);
+            }
+            // 1-8 innings, or any other extra inning
+            $this->StartInning();
+        }
     }
 
     function TryError() {
@@ -203,8 +246,9 @@ class game
                 $runs = $this->teams[0]->score - $this->teams[1]->score + 1;
         }
         $this->teams[$this->bti]->score += $runs;
+        $this->inning->runs += $runs;
         if ($walkoff)
-            return;
+            $this->GameOver();
     }
 
     function AdvanceRunners($bases, $pos) {
@@ -363,6 +407,12 @@ class game
                         break;
                     case "111":
                         $this->IncrementScore(3, false);
+                        if ($this->bti == $this->ThisTeamIndex)
+                        {
+                            $CurrBtr = $this->CurrentBatter();
+                            $hl = $CurrBtr->name . " hits a bases clearing triple against the " . $this->ThatTeamName();
+                            array_push($this->highlights, $hl);
+                        }
                         break;
                 }
                 $this->inning->runners = "001"; // will always clear the bases
@@ -384,12 +434,19 @@ class game
                         break;
                     case "111":
                         $this->IncrementScore(4, true);
+                        if ($this->bti == $this->ThisTeamIndex)
+                        {
+                            $CurrBtr = $this->CurrentBatter();
+                            $hl = $CurrBtr->name . " hits a Grand Slam against the " . $this->ThatTeamName();
+                            array_push($this->highlights, $hl);
+                        }
                         break;
                 }
                 $this->inning->runners = "000"; // will always clear the bases
                 break;
         }
     }
+
 
     function DoOut() {
         $r = $this->GetRand();

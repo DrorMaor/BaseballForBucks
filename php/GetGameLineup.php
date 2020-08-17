@@ -7,15 +7,13 @@ class GetGameLineup {
     private $season;
     private $AwayTeam;
     private $HomeTeam;
-    private $GameNum;
 
-    public function __construct($team, $year, $season, $AwayTeam, $HomeTeam, $GameNum) {
+    public function __construct($team, $year, $season, $AwayTeam, $HomeTeam) {
         $this->team = $team;
         $this->year = $year;
         $this->season = $season;
         $this->AwayTeam = $AwayTeam;
         $this->HomeTeam = $HomeTeam;
-        $this->GameNum = $GameNum;
 
         require_once ("DataClasses/team.php");
         require_once ("DataClasses/batter.php");

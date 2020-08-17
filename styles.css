@@ -18,6 +18,12 @@ body {
     width: 19vw;
 }
 
+#SimulatedSeasonResults {
+    overflow-y: scroll;
+    min-height: 3vh;
+    max-height: 50vh;
+}
+
 .menu {
     display: inline-block;
     border: 2px solid black;

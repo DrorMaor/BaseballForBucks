@@ -150,6 +150,21 @@ function DisplayScheduleResults(response) {
     try {
         var json = JSON.parse(response);
         var msg = "With your lineup, the " + _name + " would have gone " + json.W + "-" + json.L + " in " + year;
+
+        var AllHighlights = "";
+        for (var season in json.highlights) {
+            if (json.highlights[season] != null) {
+                for (var game in season) {
+                    if (json.highlights[season][game] != null) {
+                        AllHighlights += "<li>" + json.highlights[season][game] + "</li>";
+                    }
+                }
+            }
+        }
+        if (AllHighlights != "") {
+            msg += "<br><br>Here are some season highlights:";
+            msg += "<div style='text-align:left;'><ul>" + AllHighlights + "</ul></div>";
+        }
         $("#SimulatedSeasonResults").css("background-color", "#000c2b").html(msg).show();
     }
     catch(err) {
