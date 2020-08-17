@@ -69,7 +69,9 @@ class game
 
     function ThatTeamName() {
         // used with highlights
-        return $this->teams[$this->ThatTeamIndex]->city . " " . $this->teams[$this->ThatTeamIndex]->name;
+        $vs = ($this->GetRand() < 0.5) ? "vs" : "against";
+        $text = " " . $vs . " the " . $this->teams[$this->ThatTeamIndex]->city . " " . $this->teams[$this->ThatTeamIndex]->name;
+        return $text;
     }
 
     function start() {
@@ -82,14 +84,15 @@ class game
     function GameOver () {
         if ($this->teams[$this->ThisTeamIndex]->score > 10)
         {
-            $hl = $this->teams[$this->ThisTeamIndex]->score . " runs in a game against the " . $this->ThatTeamName();
+            $hl = $this->teams[$this->ThisTeamIndex]->score . " runs in a game " . $this->ThatTeamName();
             array_push($this->highlights, $hl);
         }
         if ($this->homeruns >= 4) // homeruns only gets incremented if this team is the batting team
         {
-            $hl = $this->homeruns . " homeruns in a game against the " . $this->ThatTeamName();
+            $hl = $this->homeruns . " homeruns in a game " . $this->ThatTeamName();
             array_push($this->highlights, $hl);
         }
+        shuffle($this->highlights);
         return;
     }
 
@@ -170,7 +173,7 @@ class game
         {
             if ($this->inning->runs >= 6 && $this->bti == $this->ThisTeamIndex)
             {
-                $hl = $this->inning->runs . " runs in one inning against the " . $this->ThatTeamName();
+                $hl = $this->inning->runs . " runs in one inning " . $this->ThatTeamName();
                 array_push($this->highlights, $hl);
             }
             // 1-8 innings, or any other extra inning
@@ -410,7 +413,7 @@ class game
                         if ($this->bti == $this->ThisTeamIndex)
                         {
                             $CurrBtr = $this->CurrentBatter();
-                            $hl = $CurrBtr->name . " hits a bases clearing triple against the " . $this->ThatTeamName();
+                            $hl = $CurrBtr->name . " hits a bases clearing triple " . $this->ThatTeamName();
                             array_push($this->highlights, $hl);
                         }
                         break;
@@ -437,7 +440,7 @@ class game
                         if ($this->bti == $this->ThisTeamIndex)
                         {
                             $CurrBtr = $this->CurrentBatter();
-                            $hl = $CurrBtr->name . " hits a Grand Slam against the " . $this->ThatTeamName();
+                            $hl = $CurrBtr->name . " hits a Grand Slam " . $this->ThatTeamName();
                             array_push($this->highlights, $hl);
                         }
                         break;
