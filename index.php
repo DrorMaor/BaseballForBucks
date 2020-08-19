@@ -17,6 +17,7 @@
           gtag('config', 'UA-20157082-9');
         </script>
 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="scripts.js"></script>
