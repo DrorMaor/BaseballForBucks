@@ -15,13 +15,13 @@ body {
 }
 
 #leftMenu {
-    width: 19vw;
+    width: 25%;
 }
 
 #SimulatedSeasonResults {
     overflow-y: scroll;
     min-height: 3vh;
-    max-height: 50vh;
+    max-height: 39vh;
 }
 
 .menu {
@@ -134,7 +134,11 @@ body {
 .steps {
     display: table-cell;
     padding: 5px;
-    width: 28vw;
+    width: 25%;
+}
+
+.HeadingGray {
+    color: gray;
 }
 
 .SeasonMessage {
@@ -161,7 +165,7 @@ body {
 }
 
 #btnPlayBall:hover {
-    opacity: .5;
+    opacity: .75;
 }
 
 #RunSchedule {
@@ -200,7 +204,7 @@ body {
 
 #divShowTeams {
     overflow-y: scroll;
-    height: 80vh;
+    height: 57vh;
     border-left: 1px solid blue;
 }
 
@@ -210,7 +214,7 @@ body {
 
 #ulLineup {
     overflow-y: scroll;
-    height: 50vh;
+    height: 42vh;
     text-align: right;
     margin: auto;
 }
@@ -230,7 +234,16 @@ body {
 
 .heading {
     font-weight: bold;
-    font-size: 24px;
+    font-size: 28px;
     margin: 10px;
     padding: 10px;
+    padding-bottom: 15px;
+}
+
+.help {
+    cursor: help;
+}
+
+#AdSense {
+    bottom: 0;
 }

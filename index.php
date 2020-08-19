@@ -42,7 +42,7 @@
 
 	<div class="steps" id="Step1">
         <div class="heading">
-            Step 1<br>
+            <div class="HeadingGray">Step 1</div>
             Choose Team and Year
         </div>
         <div id="divShowTeams">
@@ -52,13 +52,11 @@
 
 	<div class="steps" id="Step2">
 		<div class="heading">
-			Step 2<br>
-			Arrange the Lineup
-		</div>
-		<div id="Step2_instructions" class="instructions">
-            After selecting the team and year in Step 1, you can arrange the lineup here by dragging the players into position (or having the computer generate a great lineup for you).
-            <br>
-            You can research the team or any player by clicking the Google icon(s).
+			<div class="HeadingGray">Step 2</div>
+			<div class="help" title = "After selecting the team and year in Step 1, you can arrange the lineup here by dragging the players into position (or having the computer generate a great lineup for you).
+                You can research the team or any player by clicking the Google icon(s).">
+                Arrange the Lineup
+            </div>
 		</div>
 		<div id="ActualSeasonSummary" class="SeasonMessage"></div>
 		<div id="divTools" class="tools">
@@ -70,14 +68,13 @@
 	</div>
 
 	<div class="steps" id="Step3">
-		<div class="heading">
-			Step 3</br>
-			Simulate the Season
-		</div>
-		<div id="Step3_instructions" class="instructions">
-            Once you have chosen your lineup, click "Play Ball", and the computer will simulate the season against their actual opponents from that year.
-            <br>
-            At the end of each week, the highest winning percentage will split the pot!
+        <div class="heading">
+            <div class="HeadingGray">Step 3</div>
+		    <div class="help" title = "Once you have chosen your lineup, click 'Play Ball', and the computer will simulate the season against their actual opponents from that year.
+                At the end of each week, the highest winning percentage will split the pot!">
+                Simulate the Season
+            </div>
+            </span>
         </div>
 		<div id="RunSchedule">
             <br>
@@ -88,5 +85,19 @@
 		<br> <br>
 		<div id="SimulatedSeasonResults" class="SeasonMessage"></div>
 	</div>
+
+    <div id="AdSense">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <!-- BaseballForBucks -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9172347417963561"
+             data-ad-slot="6598809232"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     </body>
 </html>
