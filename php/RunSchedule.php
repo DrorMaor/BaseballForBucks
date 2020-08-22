@@ -11,7 +11,7 @@
     $season = SaveUserLineup($conn, $team, $year, $lineup);
     $schedule = new schedule($team, $year, $season);
     $schedule->start();
-
+    
     $conn = null;
     echo json_encode($schedule);
 

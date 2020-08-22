@@ -20,7 +20,7 @@
 
         function start() {
             $this->GetLineupAndPlayGames();
-            shuffle($this->highlights);
+            //shuffle($this->highlights);
             return;
         }
 
@@ -52,7 +52,7 @@
                     $this->AddWinningStreak();
                 else
                     $this->EndWinningStreak();
-            array_push($this->highlights, $game->highlights);
+            //array_push($this->highlights, $game->highlights);
         }
 
         function AddWinningStreak() {
@@ -62,10 +62,12 @@
 
         function EndWinningStreak() {
             $this->L++;
+            /*
             if ($this->WinningStreak >= 10) {
                 $WS_arr = array($this->WinningStreak . " game winning streak");
                 array_push($this->highlights, $WS_arr);
             }
+            */
             $this->WinningStreak = 0;
         }
     }

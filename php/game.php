@@ -81,18 +81,36 @@ class game
         $this->StartInning();
     }
 
+    function HomeAwayGame() {
+        $text = "a home";
+        if ($this->ThisTeamIndex == 0)
+            $text = ($this->GetRand() < 0.5) ? "an away" : "a road";
+        return $text . " game ";
+    }
+
     function GameOver () {
+        /*
         if ($this->teams[$this->ThisTeamIndex]->score > 10)
         {
-            $hl = $this->teams[$this->ThisTeamIndex]->score . " runs in a game " . $this->ThatTeamName();
+            $hl = $this->teams[$this->ThisTeamIndex]->score . " runs in " . $this->HomeAwayGame() . $this->ThatTeamName();
             array_push($this->highlights, $hl);
         }
-        if ($this->homeruns >= 4) // homeruns only gets incremented if this team is the batting team
+        if ($this->homeruns > 4) // homeruns only gets incremented if this team is the batting team
         {
-            $hl = $this->homeruns . " homeruns in a game " . $this->ThatTeamName();
+            $hl = $this->homeruns . " homeruns in " . $this->HomeAwayGame() . $this->ThatTeamName();
             array_push($this->highlights, $hl);
         }
+        foreach ($this->teams[$this->ThisTeamIndex]->batters as $batter)
+        {
+            if ($batter->Sim_HR > 4)
+            {
+                $hl = $batter->name . " hits " . $batter->Sim_HR . " homeruns in " . $this->HomeAwayGame() . $this->ThatTeamName();
+                array_push($this->highlights, $hl);
+            }
+        }
+
         shuffle($this->highlights);
+        */
         return;
     }
 
@@ -145,8 +163,10 @@ class game
             $r = $this->GetRand();
             if ($r < $HR) {
                 $this->DoHit(4);
-                if ($this->bti == $this->ThisTeamIndex)
+                if ($this->bti == $this->ThisTeamIndex) {
                     $this->homeruns ++;
+                    $BattingTeam->batters[$BattingTeam->batter]->Sim_HR++;
+                }
             }
             elseif ($r >= $HR && $r < ($HR + $B3) )
                 $this->DoHit(3);
@@ -171,11 +191,13 @@ class game
            $this->GameOver();
         else
         {
+            /*
             if ($this->inning->runs >= 6 && $this->bti == $this->ThisTeamIndex)
             {
                 $hl = $this->inning->runs . " runs in one inning " . $this->ThatTeamName();
                 array_push($this->highlights, $hl);
             }
+            */
             // 1-8 innings, or any other extra inning
             $this->StartInning();
         }
@@ -410,12 +432,14 @@ class game
                         break;
                     case "111":
                         $this->IncrementScore(3, false);
+                        /*
                         if ($this->bti == $this->ThisTeamIndex)
                         {
                             $CurrBtr = $this->CurrentBatter();
                             $hl = $CurrBtr->name . " hits a bases clearing triple " . $this->ThatTeamName();
                             array_push($this->highlights, $hl);
                         }
+                        */
                         break;
                 }
                 $this->inning->runners = "001"; // will always clear the bases
@@ -437,12 +461,14 @@ class game
                         break;
                     case "111":
                         $this->IncrementScore(4, true);
+                        /*
                         if ($this->bti == $this->ThisTeamIndex)
                         {
                             $CurrBtr = $this->CurrentBatter();
                             $hl = $CurrBtr->name . " hits a Grand Slam " . $this->ThatTeamName();
                             array_push($this->highlights, $hl);
                         }
+                        */
                         break;
                 }
                 $this->inning->runners = "000"; // will always clear the bases
