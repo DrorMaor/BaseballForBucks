@@ -47,6 +47,7 @@ function FeaturedFranchise () {
             var json = JSON.parse(response);
             var ffText = "<div id='headFF'>Featured Franchise</div>";
             ffText +=  json.city + " " + json.name + " " + json.year;
+            ffText += "<br><a id='ChooseFF' onclick='FeaturedFranchise();'>Choose Another Team For Me</a>";
             $("#FeaturedFranchise").html(ffText);
             // now, auto-click that  year to bring up the lineup
             $("#TeamYear_" + json.id).val(json.id + "_" + json.year);

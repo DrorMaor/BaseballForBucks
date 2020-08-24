@@ -20,7 +20,14 @@
 
         function start() {
             $this->GetLineupAndPlayGames();
-            //shuffle($this->highlights);
+
+            // record season W/L
+            require("DBconn.php");
+            $update = "update SeasonsPlayed set W = " . $this->W . ", L = " . $this->L . " where id = " . $this->season ;
+            $sql = $conn->prepare($update);
+            $sql->execute();
+            $conn = null;
+
             return;
         }
 
@@ -44,31 +51,14 @@
             $game->start();
             if ($this->team == $AwayTeam)
                 if ($game->teams[0]->score > $game->teams[1]->score)
-                    $this->AddWinningStreak();
+                    $this->W++;
                 else
-                    $this->EndWinningStreak();
+                    $this->L++;
             else
                 if ($game->teams[1]->score > $game->teams[0]->score)
-                    $this->AddWinningStreak();
+                    $this->W++;
                 else
-                    $this->EndWinningStreak();
-            //array_push($this->highlights, $game->highlights);
-        }
-
-        function AddWinningStreak() {
-            $this->W++;
-            $this->WinningStreak++;
-        }
-
-        function EndWinningStreak() {
-            $this->L++;
-            /*
-            if ($this->WinningStreak >= 10) {
-                $WS_arr = array($this->WinningStreak . " game winning streak");
-                array_push($this->highlights, $WS_arr);
-            }
-            */
-            $this->WinningStreak = 0;
+                    $this->L++;
         }
     }
 ?>
