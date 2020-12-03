@@ -1,7 +1,7 @@
 <?php
 	$server = "localhost";
 	$user = "root";
-	$pwd = "OilMash*5780";
+	$pwd = "*****";
 	$db = "RewindFantasy";
 
 	$conn = new PDO("mysql:host=$server;dbname=$db", $user, $pwd);
