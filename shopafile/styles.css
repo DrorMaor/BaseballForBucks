@@ -1,0 +1,146 @@
+body {
+    font-family: Poppins;
+}
+
+.TopPadding {
+    padding:25px;
+}
+
+.TablePadding {
+    padding: 10px;
+}
+
+.FileForm {
+    display: none;
+    background-color: white;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    border: 2px black solid;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 9;
+}
+
+#overlay {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    opacity: .1;
+    pointer-events: none;
+    background-color: gray;
+    z-index: 3;
+}
+
+.button {
+    border: none;
+    color: white;
+    padding: 5px 13px;
+    text-align: center;
+    vertical-align: middle;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+.button:hover {
+    opacity: .75;
+}
+
+.RepeatButton {
+    font-weight: bold;
+    cursor: pointer;
+}
+.RepeatButton:hover {
+    opacity: .75;
+}
+
+/*  colors */
+
+.red {
+    color:#B81D13;
+}
+
+.orange {
+    color:#EFB700;
+}
+
+.green {
+    color:#008450;
+}
+
+.greenBG {
+    background-color: #008450;
+}
+
+.orangeBG {
+    background-color: #EFB700;
+}
+
+.purple {
+    color: #8b2673;
+}
+
+.left {
+    text-align: left;
+}
+
+.center {
+    text-align: center;
+}
+
+/* Files table */
+
+#tblFiles {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#tblFiles td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#tblFiles tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#tblFiles tr:hover {
+    background-color: #ddd;
+}
+
+#tblFiles th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+}
+/* ----------------------------- */
+
+.FileImage {
+    display: none;
+    background-color: white;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 25%;
+    -ms-transform: translate(-50%, -25%);
+    transform: translate(-50%, -25%);
+    border: 1px gray solid;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 9;
+}
+
+.close {
+    cursor: pointer;
+}
+.close:hover {
+    opacity: .5;
+}
