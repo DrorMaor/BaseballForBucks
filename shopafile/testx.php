@@ -1,4 +1,6 @@
 <?php
+echo (5*5);
+/*
 public function CreateContact($contact)
 {
     $contactObj = self::factory();
@@ -26,4 +28,5 @@ public function CreateContact($contact)
     }
     return false;
 }
+*/
 ?>

@@ -7,7 +7,7 @@
         $sql->execute();
         $rows = array();
         ?>
-        <a class="button greenBG" title="Upload a new file to sell" onclick="ShowUploadForm();">Sell</a>
+        <a class="button greenBG" title="Upload a new file to sell" onclick="ShowFileForm('Upload');">Sell</a>
         <br>
         <table id="tblFiles">
             <tr>
@@ -21,9 +21,10 @@
         <?php
         foreach($sql as $row => $cols) {
             $id = $cols["id"];
-            echo "<tr>";
-            echo "<td><span onmouseout='$(\"#Image$id\").hide();' onmouseover='$(\"#Image$id\").show();'>" . $cols["FileName"] . "</span></td>";
-            echo "<span class='FileImage' id='Image".$id."'><img style='width:100px;' src='data:image;base64," . $cols['image'] . "'/></span>";
+            $onmouseout = "$('#Image" . $id . ").hide();";
+            $onmouseover = "$('#Image" . $id . ").show();";
+            echo "<tr> <td><span onmouseout='" . $onmouseout . "' onmouseover='" . $onmouseover . "'>" . $cols["FileName"] . "</span></td>";
+            echo "<span class='FileImage' id='Image" . $id . "'><img style='width:100px;' src='data:image;base64," . $cols['image'] . "'/></span>";
             echo "<td class='TablePadding'>$" . number_format($cols["price"], 2) . "</td>";
             echo "<td class='TablePadding left'>";
             $description = $cols["description"];
@@ -37,8 +38,7 @@
             echo "<td class='TablePadding center'>$" . number_format($cols["earnings"], 2) . "</td>";
             echo "<td class='TablePadding'>";
             echo "<a class='RepeatButton orange' onclick='EditFile(" . $cols["id"] . ");'>Edit</a> &nbsp;";
-            echo "<a class='RepeatButton red' onclick='DeleteFile(" . $cols["id"] . ");'>Delete</a> </td>";
-            echo "</tr>";
+            echo "<a class='RepeatButton red' onclick='DeleteFile(" . $cols["id"] . ");'>Delete</a> </td> </tr>";
         }
         echo "</table>";
         $conn = null;

@@ -1,7 +1,7 @@
 <div id="UploadForm" class="FileForm">
     <div style="width:100%">
         <h3 style="float: left;">Upload New File</h3>
-        <img src="close.png" style="float: right; padding-top:16px;" class="close" onclick="HideUploadForm();"></img>
+        <img src="close.png" style="float: right; padding-top:16px;" class="close" onclick="HideFileForm('Upload');"></img>
     </div>
     <br>
     <table>

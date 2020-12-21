@@ -30,7 +30,9 @@
             include("top.php");
             include("files.php");
             include("UploadForm.php");
+            include("EditForm.php");
         ?>
         <div id="overlay"></div>
+        <div id="divLoader"></div>
     </body>
 </html>

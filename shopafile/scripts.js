@@ -17,19 +17,19 @@ function UploadFile () {
             console.log(response);
         }
     });
-    HideUploadForm();
+    HideFileForm();
 }
 
-function HideUploadForm() {
+function HideFileForm(form) {
     $("#overlay").hide();
     $("#files").css('opacity', '1');
-    $("#UploadForm").hide();
+    $("#" + form + "Form").hide();
 }
 
-function ShowUploadForm() {
+function ShowFileForm(form) {
     $("#overlay").show();
     $("#files").css('opacity', '0.25');
-    $("#UploadForm").show();
+    $("#" + form + "Form").show();
 }
 
 function ComputeReceive() {
@@ -52,4 +52,29 @@ function DeleteFile(FileID) {
             }
         });
     }
+}
+
+function EditFile(FileID) {
+    $("#divLoader").show();
+    $.ajax({
+        type: "GET",
+        url: "GetUpdateData.php?FileID=" + FileID,
+        data: $(this).serialize(),
+        dataType: 'text',
+        success: function(response) {
+            var json = JSON.parse(response);
+            for (var i = 0; i < json.length; i++) {
+                var j = json[i];
+                $("#updateDescription").val(j.description);
+                $("#updatePrice").val(j.price);
+                $("#updateImageCurrent").attr("src","data:image;base64," + j.image);
+                $("#updateFileName").html(j.FileName);
+                $("#divLoader").hide();
+                ShowFileForm("Edit");
+            }
+
+            //alert ("This file has been updated");
+        }
+    });
+
 }
